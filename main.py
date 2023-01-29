@@ -25,7 +25,7 @@ discord_token = os.getenv('DISCORD_TOKEN')
 # Configure the bot
 #
 # The 'command_prefix' parameter is required but it's not being used
-# so we set it to something random)
+# so we set it to something random
 bot = commands.Bot(command_prefix='(╯°□°)╯', intents=intents)
 asyncio.run(bot.load_extension('cog.bot'))
 
