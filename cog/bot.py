@@ -6,7 +6,7 @@ Mainly just loads all other cogs when the bot is ready.
 from discord.ext import commands
 
 # The list of cogs to load
-COGS = ('thread',)
+COGS = ('thread', 'room')
 
 
 class Bot(commands.Cog):
@@ -17,7 +17,7 @@ class Bot(commands.Cog):
     """
 
     def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
+        self._bot = bot
 
     @commands.Cog.listener()
     async def on_ready(self) -> None:
@@ -25,10 +25,10 @@ class Bot(commands.Cog):
 
         # Load all other cogs after the bot is ready
         for cog in COGS:
-            await self.bot.load_extension(f'cog.{cog}')
+            await self._bot.load_extension(f'cog.{cog}')
 
         # Log that the bot is ready
-        ready_msg = f'{self.bot.user} is ready!'
+        ready_msg = f'{self._bot.user} is ready!'
         print(ready_msg)
         print('-' * len(ready_msg))
 

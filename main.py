@@ -15,6 +15,7 @@ from dotenv import load_dotenv
 # Configure gateway intents
 intents = discord.Intents.default()
 intents.members = True
+intents.messages = True
 intents.message_content = True
 
 # Load variables from '.env' file into the environment

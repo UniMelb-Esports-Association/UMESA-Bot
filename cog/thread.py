@@ -16,10 +16,10 @@ class Thread(commands.Cog):
     """
 
     def __init__(self, bot: commands.Bot) -> None:
-        self.bot = bot
-        self.guild = bot.guilds[0]
-        self.games = Games(self.guild)
-        self.keep_alive.start()
+        self._bot = bot
+        self._guild = bot.guilds[0]
+        self._games = Games(self._guild)
+        self._keep_alive.start()
 
     async def _on_thread_member_change(
         self,
@@ -45,13 +45,13 @@ class Thread(commands.Cog):
         current_thread_id = thread_member.thread.id
 
         # If the thread joined or left is not in the gaming hub, ignore it
-        if not self.games.is_thread(current_thread_id):
+        if not self._games.is_thread(current_thread_id):
             return
 
-        member = self.guild.get_member(thread_member.id)
-        game = self.games.game(current_thread_id)
-        game_role = self.games.role(game)
-        game_forum = self.games.forum(game)
+        member = self._guild.get_member(thread_member.id)
+        game = self._games.game(current_thread_id)
+        game_role = self._games.role(game)
+        game_forum = self._games.forum(game)
         if joined:
             await member.add_roles(game_role)
 
@@ -90,15 +90,15 @@ class Thread(commands.Cog):
         await self._on_thread_member_change(member, False)
 
     @tasks.loop(hours=24)
-    async def keep_alive(self) -> None:
+    async def _keep_alive(self) -> None:
         """Stops all hub and forum threads from automatically archiving.
 
         It does this by changing the automatic archive duration
         on each thread, and then changing it back. This resets the timer.
         """
 
-        hub_threads = [self.games.threads()]
-        forum_threads = [forum.threads for forum in self.games.forums()]
+        hub_threads = [self._games.threads()]
+        forum_threads = [forum.threads for forum in self._games.forums()]
         for threads in hub_threads + forum_threads:
             for thread in threads:
                 await thread.edit(auto_archive_duration=4320)
