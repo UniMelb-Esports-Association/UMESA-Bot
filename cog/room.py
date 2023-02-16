@@ -1,4 +1,9 @@
-"""Handles auxillary functions for room management."""
+"""Handles auxillary functions for room management.
+
+Room management refers to the temporary voice channel system.
+Although this system is provided by a different bot, extra
+functionality is provided to the system here.
+"""
 
 import discord
 from discord.ext import commands
@@ -9,7 +14,7 @@ class Room(commands.Cog):
     """A class that contains room-management-related events.
 
     Attributes:
-        bot: the bot to add this cog to
+        bot: The bot to add this cog to.
     """
 
     def __init__(self, bot: commands.Bot) -> None:
@@ -17,7 +22,7 @@ class Room(commands.Cog):
         self._guild = bot.guilds[0]
         self._data = Data()
 
-    async def _clear(self):
+    async def _clear(self) -> None:
         """Clears the 'Modify Room' text channel of any messages.
 
         This is limited to purging 999 messages (more than enough), and
@@ -33,16 +38,24 @@ class Room(commands.Cog):
         )
 
     @commands.Cog.listener()
-    async def on_message(self, message: discord.Message):
-        """Fires when a message is sent."""
+    async def on_message(self, message: discord.Message) -> None:
+        """Handles messages sent in the 'Modify Room' text channel.
+
+        Args:
+            message: The message that was sent.
+        """
 
         # If a message is sent in the 'Modify Room' text channel, then delete
-        # it and any other messages besides the 'Commands' message
+        # it and any other messages besides the 'Commands' message.
         if message.channel.id == self._data.modify_room_channel_id:
             await self._clear()
 
 
 async def setup(bot: commands.Bot) -> None:
-    """A hook for the bot to register the Room cog."""
+    """A hook for the bot to register the Room cog.
+
+    Args:
+        bot: The bot to add this cog to.
+    """
 
     await bot.add_cog(Room(bot))

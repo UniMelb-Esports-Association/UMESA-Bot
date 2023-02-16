@@ -1,29 +1,41 @@
+"""Handles everything related to the data file.
+
+The data file is a JSON file that stores mappings from
+games to the IDs of guild entities such as channels and roles,
+as well as other miscellaneous guild entity IDs that the bot
+requires to function properly.
+"""
+
 import json
 from enum import Enum
 
-JSON_FILE = 'data.json'
-MISC_GAMES = 'misc-games'
+DATA_FILE = 'data.json'
+MISC_GAMES_FORUM_NAME = 'misc-games'
 
 
 class KEY(Enum):
-    HUB_CHANNEL = 1
-    GAMING_CATEGORY = 2
-    LOG_CHANNEL = 3
-    MODIFY_ROOM_CHANNEL = 4
-    MODIFY_ROOM_COMMANDS_MSG = 5
-    HUB_THREAD = 6
-    FORUM_CHANNEL = 7
-    ROLE = 8
-    ENTITY = 9
+    """Represents the keys in the data file."""
+
+    GAMING_CATEGORY = 1
+    LOG_CHANNEL = 2
+    MODIFY_ROOM_CHANNEL = 3
+    MODIFY_ROOM_COMMANDS_MSG = 4
+    ROLE = 5
+    FORUM = 6
+    ENTITY = 7
 
     def __str__(self):
-        return self.name.lower()
+        """Converts a member's name into kebab case."""
+
+        return self.name.replace('_', '-').lower()
 
 
 class Singleton(type):
+    """A singleton metaclass."""
+
     instance = None
 
-    def __call__(cls, *args, **kw):
+    def __call__(cls, *args, **kw) -> None:
         if not cls.instance:
             cls.instance = super(Singleton, cls).__call__(*args, **kw)
 
@@ -31,77 +43,106 @@ class Singleton(type):
 
 
 class Data(metaclass=Singleton):
-    def __init__(self):
-        with open(JSON_FILE, 'r') as file:
+    """Handles the persistent data in the data file.
+
+    Provides I/O methods for the data file and parses
+    the data to provide convenient attributes and methods
+    for accessing the data in common ways.
+    """
+
+    def __init__(self) -> None:
+        # Load the data file as a dictionary.
+        with open(DATA_FILE, 'r') as file:
             self._data = json.load(file)
 
+        # Provide convenience attributes for the first (n-1)
+        # keys in the data file so that data lookups don't
+        # require magic strings.
         for key, value in self._data.items():
             self.__setattr__(
-                key + f'{"_id" if key != str(KEY.ENTITY) else ""}',
+                key.replace('-', '_')
+                + f'{"_id" if key != str(KEY.ENTITY) else ""}',
                 value
             )
-
-    @staticmethod
-    def _kebab(str_: str):
-        return str_.replace(' ', '-').lower()
 
     def add_game(
         self,
         name: str,
-        hub_thread_id: int,
-        forum_channel_id: int,
-        role_id: int
+        role_id: int,
+        forum_id: int,
     ) -> None:
-        self.entity[self._kebab(name)] = {
-            str(KEY.HUB_THREAD): hub_thread_id,
-            str(KEY.FORUM_CHANNEL): forum_channel_id,
+        """Adds a game to the data file.
+
+        Args:
+            name: The name of the game in kebab case.
+            role_id: The ID of the role associated with the game.
+            forum_id: The ID of the forum associated with the game.
+        """
+
+        # Update the dictionary representation of the data file.
+        self.entity[name] = {
             str(KEY.ROLE): role_id,
+            str(KEY.FORUM): forum_id,
         }
 
-        with open(JSON_FILE, 'w') as file:
+        # Write the updated dictionary to the data file.
+        with open(DATA_FILE, 'w') as file:
             json.dump(self._data, file, indent=4)
 
     def delete_game(self, name: str) -> None:
-        del self.entity[self._kebab(name)]
+        """Deletes a game from the data file.
 
-        with open(JSON_FILE, 'w') as file:
+        Args:
+            name: The name of the game in kebab case.
+        """
+
+        # Update the dictionary representation of the data file.
+        del self.entity[name]
+
+        # Write the updated dictionary to the data file.
+        with open(DATA_FILE, 'w') as file:
             json.dump(self._data, file, indent=4)
 
-    def thread_id(self, game: str) -> int:
-        return self.entity[game][str(KEY.HUB_THREAD)]
-
-    def forum_id(self, game: str) -> int:
-        return self.entity[game][str(KEY.FORUM_CHANNEL)]
-
     def role_id(self, game: str) -> int:
+        """Returns the role ID associated with a game.
+
+        Args:
+            game: The name of the game in kebab case.
+        """
+
         return self.entity[game][str(KEY.ROLE)]
 
-    def thread_ids(self) -> list[int]:
-        """Get all hub threads."""
+    def forum_id(self, game: str) -> int:
+        """Returns the forum ID associated with a game.
 
-        return [
-            values[str(KEY.HUB_THREAD)]
-            for values in self.entity.values()
-        ]
+        Args:
+            game: The name of the game in kebab case.
+        """
 
-    def forum_ids(self) -> list[int]:
-        """Get all forums."""
-
-        return [
-            values[str(KEY.FORUM_CHANNEL)]
-            for values in self.entity.values()
-        ]
+        return self.entity[game][str(KEY.FORUM)]
 
     def role_ids(self) -> list[int]:
-        """Get all roles."""
+        """Returns all role IDs associated with a game."""
 
         return [
             values[str(KEY.ROLE)]
             for values in self.entity.values()
         ]
 
+    def forum_ids(self) -> list[int]:
+        """Returns all forum IDs associated with a game."""
+
+        return [
+            values[str(KEY.FORUM)]
+            for values in self.entity.values()
+        ]
+
     def game(self, id_: int) -> str:
-        """Get the game from a hub thread id, game forum id or game role id."""
+        """Returns the name of the game in kebab case from a role or forum ID.
+
+        Args:
+            id_: The role or forum ID associated with a game.
+        """
 
         for game, values in self.entity.items():
             if id_ in values.values():
