@@ -5,8 +5,9 @@ Mainly just loads all other cogs when the bot is ready.
 
 from discord.ext import commands
 
+
 # The list of cogs to load
-COGS = ('thread', 'room')
+COGS = ('room', 'thread.admin', 'thread.user')
 
 
 class Bot(commands.Cog):
@@ -26,6 +27,9 @@ class Bot(commands.Cog):
         # Load all other cogs after the bot is ready
         for cog in COGS:
             await self._bot.load_extension(f'cog.{cog}')
+
+        # Sync the command tree to all guilds
+        await self._bot.tree.sync()
 
         # Log that the bot is ready
         ready_msg = f'{self._bot.user} is ready!'

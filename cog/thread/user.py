@@ -1,11 +1,11 @@
 """Contains thread-related events."""
 
 import discord
-from discord.ext import commands, tasks
-from games import Games, Game
+from discord.ext import commands
+from data import Data, MISC_GAMES
 
 
-class Thread(commands.Cog):
+class ThreadUser(commands.Cog):
     """A class to manage thread-related things.
 
     Handles members joining or leaving hub threads,
@@ -18,8 +18,7 @@ class Thread(commands.Cog):
     def __init__(self, bot: commands.Bot) -> None:
         self._bot = bot
         self._guild = bot.guilds[0]
-        self._games = Games(self._guild)
-        self._keep_alive.start()
+        self._data = Data()
 
     async def _on_thread_member_change(
         self,
@@ -42,30 +41,32 @@ class Thread(commands.Cog):
             joined: True if the member joined the thread, False if they left
         """
 
-        current_thread_id = thread_member.thread.id
+        current_thread = thread_member.thread
 
         # If the thread joined or left is not in the gaming hub, ignore it
-        if not self._games.is_thread(current_thread_id):
+        if current_thread.parent_id != self._data.hub_channel_id:
             return
 
         member = self._guild.get_member(thread_member.id)
-        game = self._games.game(current_thread_id)
-        game_role = self._games.role(game)
-        game_forum = self._games.forum(game)
+        game = self._data.game(current_thread.id)
+        game_role_id = self._data.role_id(game)
+        game_forum_id = self._data.forum_id(game)
+        game_role = self._guild.get_role(game_role_id)
+        game_forum = self._guild.get_channel(game_forum_id)
         if joined:
             await member.add_roles(game_role)
 
             # If the hub thread joined is 'Miscellaneous Games',
             # then don't automatically add the member to that game's
             # forum threads (i.e. let them choose manually)
-            if game != Game.MISC:
+            if game != MISC_GAMES:
                 for thread in game_forum.threads:
                     await thread.add_user(member)
         else:
             # If the hub thread left is 'Miscellaneous Games',
             # then don't automatically remove the member from that game's
             # forum threads (i.e. keep their manual choices)
-            if game != Game.MISC:
+            if game != MISC_GAMES:
                 for thread in game_forum.threads:
                     await thread.remove_user(member)
 
@@ -89,23 +90,8 @@ class Thread(commands.Cog):
 
         await self._on_thread_member_change(member, False)
 
-    @tasks.loop(hours=24)
-    async def _keep_alive(self) -> None:
-        """Stops all hub and forum threads from automatically archiving.
-
-        It does this by changing the automatic archive duration
-        on each thread, and then changing it back. This resets the timer.
-        """
-
-        hub_threads = [self._games.threads()]
-        forum_threads = [forum.threads for forum in self._games.forums()]
-        for threads in hub_threads + forum_threads:
-            for thread in threads:
-                await thread.edit(auto_archive_duration=4320)
-                await thread.edit(auto_archive_duration=10080)
-
 
 async def setup(bot: commands.Bot) -> None:
     """A hook for the bot to register the Thread cog."""
 
-    await bot.add_cog(Thread(bot))
+    await bot.add_cog(ThreadUser(bot))

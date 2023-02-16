@@ -14,6 +14,7 @@ from dotenv import load_dotenv
 
 # Configure gateway intents
 intents = discord.Intents.default()
+intents.guilds = True
 intents.members = True
 intents.messages = True
 intents.message_content = True
@@ -32,3 +33,9 @@ asyncio.run(bot.load_extension('cog.bot'))
 
 # Run the bot
 bot.run(discord_token)
+
+# Configure created forum channel to use role for visibility
+# Change bot add endpoints to edit mentions
+# Change order of threads joined and/or change sort order of forum channels
+# Change registed message in forum threads
+# Clean up code and comments

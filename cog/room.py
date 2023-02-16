@@ -2,12 +2,7 @@
 
 import discord
 from discord.ext import commands
-
-# The ID of the 'Modify Room' text channel
-MODIFY_ROOM_ID = 1069689639448883300
-
-# The ID of the 'Commands' message in the 'Modify Room' text channel
-COMMANDS_ID = 1069699532700524637
+from data import Data
 
 
 class Room(commands.Cog):
@@ -19,7 +14,8 @@ class Room(commands.Cog):
 
     def __init__(self, bot: commands.Bot) -> None:
         self._bot = bot
-        self._modify_room_channel = bot.get_channel(MODIFY_ROOM_ID)
+        self._guild = bot.guilds[0]
+        self._data = Data()
 
     async def _clear(self):
         """Clears the 'Modify Room' text channel of any messages.
@@ -33,7 +29,7 @@ class Room(commands.Cog):
 
         await self._modify_room_channel.purge(
             limit=999,
-            check=lambda msg: msg.id != COMMANDS_ID
+            check=lambda msg: msg.id != self._data.modify_room_commands_msg_id
         )
 
     @commands.Cog.listener()
@@ -42,7 +38,7 @@ class Room(commands.Cog):
 
         # If a message is sent in the 'Modify Room' text channel, then delete
         # it and any other messages besides the 'Commands' message
-        if message.channel == self._modify_room_channel:
+        if message.channel.id == self._data.modify_room_channel_id:
             await self._clear()
 
 
