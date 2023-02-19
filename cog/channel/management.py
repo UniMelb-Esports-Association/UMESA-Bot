@@ -92,7 +92,7 @@ class ChannelManagement(commands.Cog):
         log_channel = self._guild.get_channel(
             self._data.log_channel_id
         )
-        await log_channel.send(f'Registered game: \'{game_name}\'')
+        await log_channel.send(f'Registered game: \'{game_name.upper()}\'')
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(
@@ -124,7 +124,7 @@ class ChannelManagement(commands.Cog):
         # Send a message to the log channel saying that
         # the game has been deleted successfully.
         game_name = self._title(channel.name)
-        await log_channel.send(f'Unregistered game: \'{game_name}\'')
+        await log_channel.send(f'Unregistered game: \'{game_name.upper()}\'')
 
     @commands.Cog.listener()
     async def on_thread_create(

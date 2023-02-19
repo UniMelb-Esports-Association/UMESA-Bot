@@ -32,7 +32,13 @@ class Room(commands.Cog):
         Hence to remove the clutter, all regular messages should be purged.
         """
 
-        await self._modify_room_channel.purge(
+        # Get the 'Modify Room' channel
+        modify_room_channel = self._guild.get_channel(
+            self._data.modify_room_channel_id
+        )
+
+        # Purge messages
+        await modify_room_channel.purge(
             limit=999,
             check=lambda msg: msg.id != self._data.modify_room_commands_msg_id
         )
