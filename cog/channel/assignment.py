@@ -114,32 +114,32 @@ class ChannelAssignment(commands.Cog):
                 await bot_message.edit(content=old_content)
 
     @app_commands.command(name='sync')
-    async def sync(self, interaction: discord.Interaction) -> None:
-        await interaction.response.send_message("Started!", ephemeral=True)
+    async def sync(self, interaction: discord.Interaction, role: str) -> None:
+        await interaction.response.send_message(f"MSG: {role}")
 
-        role_ids = self._data.role_ids()
-        forum_ids = self._data.forum_ids()
-        for role_id, forum_id in zip(role_ids, forum_ids):
-            role = self._guild.get_role(role_id)
-            forum = self._guild.get_channel(forum_id)
-            threads = forum.threads
-            threads.reverse()
-            for member in role.members:
-                for thread in threads:
-                    bot_message = [
-                        msg async for msg in thread.history(
-                            limit=1,
-                            oldest_first=True
-                        )
-                    ][0]
+        # role_ids = self._data.role_ids()
+        # forum_ids = self._data.forum_ids()
+        # for role_id, forum_id in zip(role_ids, forum_ids):
+        #     role = self._guild.get_role(role_id)
+        #     forum = self._guild.get_channel(forum_id)
+        #     threads = forum.threads
+        #     threads.reverse()
+        #     for member in role.members:
+        #         for thread in threads:
+        #             bot_message = [
+        #                 msg async for msg in thread.history(
+        #                     limit=1,
+        #                     oldest_first=True
+        #                 )
+        #             ][0]
 
-                    # Edit the bot's message with the mention, and then
-                    # immediately edit it again to remove the mention.
-                    old_content = bot_message.content
-                    new_content = old_content + f' [Adding {member.mention}..]'
-                    await bot_message.edit(content=new_content)
-                    await bot_message.edit(content=old_content)
-                    print(f'Added \'{member.name}\' to the \'{thread.name}\' thread in the \'{forum.name}\' channel!')
+        #             # Edit the bot's message with the mention, and then
+        #             # immediately edit it again to remove the mention.
+        #             old_content = bot_message.content
+        #             new_content = old_content + f' [Adding {member.mention}..]'
+        #             await bot_message.edit(content=new_content)
+        #             await bot_message.edit(content=old_content)
+        #             print(f'Added \'{member.name}\' to the \'{thread.name}\' thread in the \'{forum.name}\' channel!')
 
         print('All done!')
 
