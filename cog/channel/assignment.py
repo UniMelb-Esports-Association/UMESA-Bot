@@ -115,6 +115,8 @@ class ChannelAssignment(commands.Cog):
 
     @app_commands.command(name='sync')
     async def sync(self, interaction: discord.Interaction) -> None:
+        await interaction.response.send_message("Started!", ephemeral=True)
+
         role_ids = self._data.role_ids()
         forum_ids = self._data.forum_ids()
         for role_id, forum_id in zip(role_ids, forum_ids):
