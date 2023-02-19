@@ -13,7 +13,7 @@ DATA_FILE = 'data.json'
 MISC_GAMES_FORUM_NAME = 'misc-games'
 
 
-class KEY(Enum):
+class _KEY(Enum):
     """Represents the keys in the data file."""
 
     GAMING_CATEGORY = 1
@@ -61,7 +61,7 @@ class Data(metaclass=Singleton):
         for key, value in self._data.items():
             self.__setattr__(
                 key.replace('-', '_')
-                + f'{"_id" if key != str(KEY.ENTITY) else ""}',
+                + f'{"_id" if key != str(_KEY.ENTITY) else ""}',
                 value
             )
 
@@ -81,8 +81,8 @@ class Data(metaclass=Singleton):
 
         # Update the dictionary representation of the data file.
         self.entity[name] = {
-            str(KEY.ROLE): role_id,
-            str(KEY.FORUM): forum_id,
+            str(_KEY.ROLE): role_id,
+            str(_KEY.FORUM): forum_id,
         }
 
         # Write the updated dictionary to the data file.
@@ -110,7 +110,7 @@ class Data(metaclass=Singleton):
             game: The name of the game in kebab case.
         """
 
-        return self.entity[game][str(KEY.ROLE)]
+        return self.entity[game][str(_KEY.ROLE)]
 
     def forum_id(self, game: str) -> int:
         """Returns the forum ID associated with a game.
@@ -119,13 +119,13 @@ class Data(metaclass=Singleton):
             game: The name of the game in kebab case.
         """
 
-        return self.entity[game][str(KEY.FORUM)]
+        return self.entity[game][str(_KEY.FORUM)]
 
     def role_ids(self) -> list[int]:
         """Returns all role IDs associated with a game."""
 
         return [
-            values[str(KEY.ROLE)]
+            values[str(_KEY.ROLE)]
             for values in self.entity.values()
         ]
 
@@ -133,7 +133,7 @@ class Data(metaclass=Singleton):
         """Returns all forum IDs associated with a game."""
 
         return [
-            values[str(KEY.FORUM)]
+            values[str(_KEY.FORUM)]
             for values in self.entity.values()
         ]
 
