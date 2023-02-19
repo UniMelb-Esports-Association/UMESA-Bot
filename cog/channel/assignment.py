@@ -114,8 +114,8 @@ class ChannelAssignment(commands.Cog):
                 await bot_message.edit(content=old_content)
 
     @app_commands.command(name='sync')
-    async def sync(self, interaction: discord.Interaction, role: str) -> None:
-        await interaction.response.send_message(f"MSG: {role}")
+    async def sync(self, interaction: discord.Interaction, role: discord.Role) -> None:
+        await interaction.response.send_message(f"MSG: {role.id}")
 
         # role_ids = self._data.role_ids()
         # forum_ids = self._data.forum_ids()
@@ -141,7 +141,7 @@ class ChannelAssignment(commands.Cog):
         #             await bot_message.edit(content=old_content)
         #             print(f'Added \'{member.name}\' to the \'{thread.name}\' thread in the \'{forum.name}\' channel!')
 
-        print('All done!')
+        # print('All done!')
 
 
 async def setup(bot: commands.Bot) -> None:
