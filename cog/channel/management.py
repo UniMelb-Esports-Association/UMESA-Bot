@@ -151,7 +151,7 @@ class ChannelManagement(commands.Cog):
         if thread.parent_id in self._data.forum_ids():
             await thread.send(
                 f'Registered this thread with '
-                f'\'{self._title(thread.parent.name)}\'!'
+                f'\'{self._title(thread.parent.name.upper())}\'!'
             )
 
     @commands.Cog.listener()
@@ -171,7 +171,7 @@ class ChannelManagement(commands.Cog):
             log_channel = self._guild.get_channel(self._data.log_channel_id)
             await log_channel.send(
                 f'Unregistered the \'{thread.name}\' thread '
-                f'from \'{self._title(thread.parent.name)}\'!'
+                f'from \'{self._title(thread.parent.name.upper())}\'!'
             )
 
     @tasks.loop(hours=24)
