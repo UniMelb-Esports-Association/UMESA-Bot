@@ -100,10 +100,10 @@ class ChannelAssignment(commands.Cog):
                 # thread's creation.
                 bot_message = [
                     msg async for msg in thread.history(
-                        limit=2,
+                        limit=1,
                         oldest_first=True
                     )
-                ][1]
+                ][0]
 
                 # Edit the bot's message with the mention, and then
                 # immediately edit it again to remove the mention.
