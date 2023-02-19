@@ -68,7 +68,10 @@ class ChannelManagement(commands.Cog):
         # Deny @everyone from viewing the forum.
         await channel.set_permissions(
             self._guild.default_role,
-            view_channel=False
+            view_channel=False,
+            send_messages=False,
+            create_public_threads=False,
+            create_private_threads=False
         )
 
         # Create a new role associated with the forum's game and
