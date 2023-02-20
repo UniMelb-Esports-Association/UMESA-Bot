@@ -193,7 +193,7 @@ class ChannelAssignment(commands.Cog):
     @app_commands.command(name='test')
     async def test(self, interaction: discord.Interaction):
         thread = self._guild.get_channel_or_thread(1077217975268036618)
-        thread.remove_user(interaction.user)
+        await thread.remove_user(interaction.user)
         await interaction.response.send_message('Done!')
 
 
