@@ -113,9 +113,40 @@ class ChannelAssignment(commands.Cog):
                 await bot_message.edit(content=new_content)
                 await bot_message.edit(content=old_content)
 
+    @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name='sync')
-    async def sync(self, interaction: discord.Interaction, role: discord.Role) -> None:
-        await interaction.response.send_message(f"MSG: {role.id}")
+    async def sync(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.abc.GuildChannel,
+        role: discord.Role
+    ) -> None:
+        if len(role.members) > 100:
+            await interaction.response.send_message(
+                f'Too many members in the {role.mention} role!'
+            )
+            return
+
+        await interaction.defer(thinking=True)
+
+        threads = channel.threads
+        threads.reverse()
+        for thread in threads:
+            bot_message = [
+                msg async for msg in thread.history(
+                    limit=1,
+                    oldest_first=True
+                )
+            ][0]
+
+            old_content = bot_message.content
+            new_content = old_content + f' [Adding {role.mention}..]'
+            await bot_message.edit(content=new_content)
+            await bot_message.edit(content=old_content)
+
+        await interaction.followup.send(
+            f'Finished syncing {role.mention} with {channel.mention}!'
+        )
 
         # role_ids = self._data.role_ids()
         # forum_ids = self._data.forum_ids()
@@ -142,6 +173,28 @@ class ChannelAssignment(commands.Cog):
         #             print(f'Added \'{member.name}\' to the \'{thread.name}\' thread in the \'{forum.name}\' channel!')
 
         # print('All done!')
+
+        @discord.app_commands.checks.has_role('Admin')
+        @app_commands.command(name='add')
+        async def add(
+            self,
+            interaction: discord.Interaction,
+            role_from: discord.Role,
+            role_to: discord.Role
+        ) -> None:
+            await interaction.defer(thinking=True)
+
+            for member in role_from.members:
+                await member.add_roles((role_to,))
+
+            await interaction.followup.send('Done!')
+
+        @discord.app_commands.checks.has_role('Admin')
+        @app_commands.command(name='test')
+        async def test(self, interaction: discord.Interaction):
+            thread = self._guild.get_channel_or_thread(1077217975268036618)
+            thread.remove_user(interaction.user)
+            await interaction.response.send_message('Done!')
 
 
 async def setup(bot: commands.Bot) -> None:
