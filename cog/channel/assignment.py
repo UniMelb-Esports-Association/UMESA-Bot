@@ -174,27 +174,27 @@ class ChannelAssignment(commands.Cog):
 
         # print('All done!')
 
-        @discord.app_commands.checks.has_role('Admin')
-        @app_commands.command(name='add')
-        async def add(
-            self,
-            interaction: discord.Interaction,
-            role_from: discord.Role,
-            role_to: discord.Role
-        ) -> None:
-            await interaction.defer(thinking=True)
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='add')
+    async def add(
+        self,
+        interaction: discord.Interaction,
+        role_from: discord.Role,
+        role_to: discord.Role
+    ) -> None:
+        await interaction.defer(thinking=True)
 
-            for member in role_from.members:
-                await member.add_roles((role_to,))
+        for member in role_from.members:
+            await member.add_roles((role_to,))
 
-            await interaction.followup.send('Done!')
+        await interaction.followup.send('Done!')
 
-        @discord.app_commands.checks.has_role('Admin')
-        @app_commands.command(name='test')
-        async def test(self, interaction: discord.Interaction):
-            thread = self._guild.get_channel_or_thread(1077217975268036618)
-            thread.remove_user(interaction.user)
-            await interaction.response.send_message('Done!')
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='test')
+    async def test(self, interaction: discord.Interaction):
+        thread = self._guild.get_channel_or_thread(1077217975268036618)
+        thread.remove_user(interaction.user)
+        await interaction.response.send_message('Done!')
 
 
 async def setup(bot: commands.Bot) -> None:

@@ -29,12 +29,9 @@ class Bot(commands.Cog):
             await self._bot.load_extension(f'cog.{cog}')
 
         # Sync the command tree to all guilds.
-        synced_cmds = await self._bot.tree.sync()
+        await self._bot.tree.sync()
 
         # Log that the bot is ready.
-        for cmd in synced_cmds:
-            print(f'Successfully synced the \'{cmd.name}\' slash command!')
-
         ready_msg = f'{self._bot.user} is ready!'
         print(ready_msg)
         print('-' * len(ready_msg))
