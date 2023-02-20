@@ -192,7 +192,7 @@ class ChannelAssignment(commands.Cog):
     @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name='test')
     async def test(self, interaction: discord.Interaction):
-        thread = self._guild.fetch_channel(1077217975268036618)
+        thread = await self._guild.fetch_channel(1077217975268036618)
         await thread.remove_user(interaction.user)
         await interaction.response.send_message('Done!')
 
