@@ -10,6 +10,8 @@ from discord import app_commands
 from discord.ext import commands
 from data import Data, MISC_GAMES_FORUM_NAME
 
+MAX_ROLE_SIZE_FOR_THREAD_JOIN = 99
+
 
 class ChannelAssignment(commands.Cog):
     """A class to manage forum thread assignment.
@@ -35,6 +37,58 @@ class ChannelAssignment(commands.Cog):
         """
 
         return str_.replace(' ', '-').lower()
+
+    @staticmethod
+    async def _add_member_to_threads(
+        mention: str,
+        threads: [discord.Thread]
+    ) -> None:
+        """Adds member(s) to a list of threads.
+
+        This is done without any notification being generated
+        by the threads.
+
+        Args:
+            mention: The mention string to use to add the members.
+            threads: The threads to be added to.
+        """
+
+        # Since threads are added to the top of the thread list for
+        # their associated forum rather than the bottom, we must reverse
+        # the order of the thread list to maintain the order of thread
+        # creation in the channel list.
+        threads = list(threads)
+        threads.reverse()
+
+        # Add the member to each thread. It's worth noting that
+        # we use a special technique here. We don't use the
+        # discord.Thread.add_user method as this sends a system
+        # message to every thread the user is added to, which can
+        # become annoying and clutter the channel. We also don't
+        # send a message in the thread that mentions the member
+        # and then delete it immediately as this results in ghost
+        # unread indicators. Instead, we edit a message sent by
+        # the bot at the thread's creation with a mention, and
+        # then edit it again to remove the mention. This adds
+        # the member to the thread, does not give them a ghost
+        # ping and does not send a notification.
+        for thread in threads:
+            # Get the first message ever sent in the thread,
+            # which is the message sent by the bot at the
+            # thread's creation.
+            bot_message = [
+                msg async for msg in thread.history(
+                    limit=1,
+                    oldest_first=True
+                )
+            ][0]
+
+            # Edit the bot's message with the mention, and then
+            # immediately edit it again to remove the mention.
+            old_content = bot_message.content
+            new_content = old_content + f' [Adding {mention}...]'
+            await bot_message.edit(content=new_content)
+            await bot_message.edit(content=old_content)
 
     @commands.Cog.listener()
     async def on_member_update(
@@ -77,41 +131,8 @@ class ChannelAssignment(commands.Cog):
             forum_id = self._data.forum_id(forum_name)
             forum_threads = self._guild.get_channel(forum_id).threads
 
-            # Since threads are added to the top of the thread list for
-            # their associated forum rather than the bottom, we must reverse
-            # the order of the thread list to maintain the order of thread
-            # creation in the channel list.
-            forum_threads.reverse()
-
-            # Add the member to each thread. It's worth noting that
-            # we use a special technique here. We don't use the
-            # discord.Thread.add_user method as this sends a system
-            # message to every thread the user is added to, which can
-            # become annoying and clutter the channel. We also don't
-            # send a message in the thread that mentions the member
-            # and then delete it immediately as this results in ghost
-            # unread indicators. Instead, we edit a message sent by
-            # the bot at the thread's creation with a mention, and
-            # then edit it again to remove the mention. This adds
-            # the member to the thread, does not give them a ghost
-            # ping and does not send a notification.
-            for thread in forum_threads:
-                # Get the second message ever sent in the thread,
-                # which is the message sent by the bot at the
-                # thread's creation.
-                bot_message = [
-                    msg async for msg in thread.history(
-                        limit=1,
-                        oldest_first=True
-                    )
-                ][0]
-
-                # Edit the bot's message with the mention, and then
-                # immediately edit it again to remove the mention.
-                old_content = bot_message.content
-                new_content = old_content + f' [Adding {after.mention}...]'
-                await bot_message.edit(content=new_content)
-                await bot_message.edit(content=old_content)
+            # Add the member to the forum threads.
+            await self._add_member_to_threads(after.mention, forum_threads)
 
     @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name='sync')
@@ -121,80 +142,54 @@ class ChannelAssignment(commands.Cog):
         channel: discord.abc.GuildChannel,
         role: discord.Role
     ) -> None:
-        if len(role.members) > 100:
-            await interaction.response.send_message(
-                f'Too many members in the {role.mention} role!'
-            )
-            return
+        """Syncs a role with a game channel's threads.
 
+        Syncing means that every member in a role is added
+        to every thread in a game channel in the correct order.
+
+        Args:
+            interaction: The interaction object for the slash command.
+            channel: The game channel that contains the threads to be added to.
+            role: The role that contains the members to add.
+        """
+
+        # Defer the bot's response to give
+        # time for the sync to complete.
         await interaction.defer(thinking=True)
 
-        threads = channel.threads
-        threads.reverse()
-        for thread in threads:
-            bot_message = [
-                msg async for msg in thread.history(
-                    limit=1,
-                    oldest_first=True
-                )
-            ][0]
+        # Calculate the number of role partitions required to add every member
+        # from the role into the game channel's threads. This is done because
+        # there is a maximum number of members that can be added to a thread
+        # at once. To solve this, we split the members of the role across many
+        # temporary roles and then add every member from each temporary role
+        # to the game channel's threads.
+        partitions = -(len(role.members) // -MAX_ROLE_SIZE_FOR_THREAD_JOIN)
 
-            old_content = bot_message.content
-            new_content = old_content + f' [Adding {role.mention}..]'
-            await bot_message.edit(content=new_content)
-            await bot_message.edit(content=old_content)
+        # Split the members into temporary roles if required.
+        roles_to_add = []
+        if partitions == 1:
+            roles_to_add.append(role)
+        else:
+            # Add members in max chunks to the temporary roles
+            # until every member from the original role has been
+            # allocated to a temporary one.
+            for i in range(partitions):
+                new_role = await self._guild.create_role(role.name)
+                start_index = i * MAX_ROLE_SIZE_FOR_THREAD_JOIN
+                end_index = (i + 1) * MAX_ROLE_SIZE_FOR_THREAD_JOIN
+                for member in role.members[start_index, end_index]:
+                    await member.add_roles((new_role,))
 
+                roles_to_add.append(new_role)
+
+        # Add all members to the game channel threads.
+        for role in roles_to_add:
+            await self._add_member_to_threads(role.mention, channel.threads)
+
+        # Stop deferring and report that the bot has finished.
         await interaction.followup.send(
             f'Finished syncing {role.mention} with {channel.mention}!'
         )
-
-        # role_ids = self._data.role_ids()
-        # forum_ids = self._data.forum_ids()
-        # for role_id, forum_id in zip(role_ids, forum_ids):
-        #     role = self._guild.get_role(role_id)
-        #     forum = self._guild.get_channel(forum_id)
-        #     threads = forum.threads
-        #     threads.reverse()
-        #     for member in role.members:
-        #         for thread in threads:
-        #             bot_message = [
-        #                 msg async for msg in thread.history(
-        #                     limit=1,
-        #                     oldest_first=True
-        #                 )
-        #             ][0]
-
-        #             # Edit the bot's message with the mention, and then
-        #             # immediately edit it again to remove the mention.
-        #             old_content = bot_message.content
-        #             new_content = old_content + f' [Adding {member.mention}..]'
-        #             await bot_message.edit(content=new_content)
-        #             await bot_message.edit(content=old_content)
-        #             print(f'Added \'{member.name}\' to the \'{thread.name}\' thread in the \'{forum.name}\' channel!')
-
-        # print('All done!')
-
-    @discord.app_commands.checks.has_role('Admin')
-    @app_commands.command(name='add')
-    async def add(
-        self,
-        interaction: discord.Interaction,
-        role_from: discord.Role,
-        role_to: discord.Role
-    ) -> None:
-        await interaction.defer(thinking=True)
-
-        for member in role_from.members:
-            await member.add_roles((role_to,))
-
-        await interaction.followup.send('Done!')
-
-    @discord.app_commands.checks.has_role('Admin')
-    @app_commands.command(name='test')
-    async def test(self, interaction: discord.Interaction):
-        thread = await self._guild.fetch_channel(1077217975268036618)
-        await thread.remove_user(interaction.user)
-        await interaction.response.send_message('Done!')
 
 
 async def setup(bot: commands.Bot) -> None:
