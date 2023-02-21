@@ -61,7 +61,7 @@ class Misc(commands.Cog):
 
     @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name='fix-message')
-    async def add_members(
+    async def fix_message(
         self,
         interaction: discord.Interaction,
         channel: discord.abc.GuildChannel
@@ -76,7 +76,9 @@ class Misc(commands.Cog):
                     oldest_first=True
                 )
             ][0]
-            await bot_message.edit(content=f'Registered game: \'{channel.name.replace('-', ' ').upper()}\'')
+            await bot_message.edit(
+                content=f'Registered game: {channel.name.replace("-", " ").upper()}'
+            )
 
 
 async def setup(bot: commands.Bot) -> None:
