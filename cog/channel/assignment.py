@@ -155,7 +155,7 @@ class ChannelAssignment(commands.Cog):
 
         # Defer the bot's response to give
         # time for the sync to complete.
-        await interaction.defer(thinking=True)
+        await interaction.response.defer(thinking=True)
 
         # Calculate the number of role partitions required to add every member
         # from the role into the game channel's threads. This is done because

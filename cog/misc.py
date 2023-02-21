@@ -43,7 +43,7 @@ class Misc(commands.Cog):
 
         # Defer the bot's response to give time for
         # the members to be added to the role.
-        await interaction.defer(thinking=True)
+        await interaction.response.defer(thinking=True)
 
         # Add the members to the role.
         for member in role_from.members:
