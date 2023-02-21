@@ -178,7 +178,7 @@ class ChannelAssignment(commands.Cog):
             # until every member from the original role has been
             # allocated to a temporary one.
             for i in range(partitions):
-                new_role = await self._guild.create_role(role.name)
+                new_role = await self._guild.create_role(name=role.name)
                 start_index = i * _MAX_ROLE_SIZE_FOR_THREAD_JOIN
                 end_index = (i + 1) * _MAX_ROLE_SIZE_FOR_THREAD_JOIN
                 for member in role.members[start_index, end_index]:
