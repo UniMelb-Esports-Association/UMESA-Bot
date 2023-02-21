@@ -77,8 +77,10 @@ class Misc(commands.Cog):
                 )
             ][0]
             await bot_message.edit(
-                content=f'Registered game: {channel.name.replace("-", " ").upper()}'
+                content=f'Registered game: \'{channel.name.replace("-", " ").upper()}!\''
             )
+
+        await interaction.response.send('Fixed!')
 
 
 async def setup(bot: commands.Bot) -> None:
