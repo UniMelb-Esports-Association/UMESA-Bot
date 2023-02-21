@@ -59,6 +59,25 @@ class Misc(commands.Cog):
 
         assignment.disable_member_update = False
 
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='fix-message')
+    async def add_members(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.abc.GuildChannel
+    ) -> None:
+        for thread in channel.threads:
+            # Get the first message ever sent in the thread,
+            # which is the message sent by the bot at the
+            # thread's creation.
+            bot_message = [
+                msg async for msg in thread.history(
+                    limit=1,
+                    oldest_first=True
+                )
+            ][0]
+            await bot_message.edit(content=f'Registered game: \'{channel.name.replace('-', ' ').upper()}\'')
+
 
 async def setup(bot: commands.Bot) -> None:
     """A hook for the bot to register the Misc cog.
