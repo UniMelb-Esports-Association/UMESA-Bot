@@ -87,7 +87,7 @@ class ChannelAssignment(commands.Cog):
 
             # Edit the bot's message with the mention, and then
             # immediately edit it again to remove the mention.
-            old_content = 'Registered this thread with \'DOTA 2\'!'
+            old_content = bot_message.content
             new_content = old_content + f' [Adding {mention}...]'
             await bot_message.edit(content=new_content)
             await bot_message.edit(content=old_content)
