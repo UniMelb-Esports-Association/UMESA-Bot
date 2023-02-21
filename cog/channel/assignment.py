@@ -181,7 +181,7 @@ class ChannelAssignment(commands.Cog):
                 new_role = await self._guild.create_role(name=role.name)
                 start_index = i * _MAX_ROLE_SIZE_FOR_THREAD_JOIN
                 end_index = (i + 1) * _MAX_ROLE_SIZE_FOR_THREAD_JOIN
-                for member in role.members[start_index, end_index]:
+                for member in role.members[start_index:end_index]:
                     await member.add_roles(new_role)
 
                 roles_to_add.append(new_role)
