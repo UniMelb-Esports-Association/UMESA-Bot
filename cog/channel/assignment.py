@@ -10,7 +10,9 @@ from discord import app_commands
 from discord.ext import commands
 from data import Data, MISC_GAMES_FORUM_NAME
 
-MAX_ROLE_SIZE_FOR_THREAD_JOIN = 99
+_MAX_ROLE_SIZE_FOR_THREAD_JOIN = 99
+
+disable_member_update = False
 
 
 class ChannelAssignment(commands.Cog):
@@ -106,6 +108,8 @@ class ChannelAssignment(commands.Cog):
             before: The member object before it was updated.
             after: The member object after it was updated.
         """
+        if disable_member_update:
+            return
 
         # Determine the IDs of the roles that were added to the member, if any.
         game_role_ids = set(self._data.role_ids())
@@ -163,7 +167,7 @@ class ChannelAssignment(commands.Cog):
         # at once. To solve this, we split the members of the role across many
         # temporary roles and then add every member from each temporary role
         # to the game channel's threads.
-        partitions = -(len(role.members) // -MAX_ROLE_SIZE_FOR_THREAD_JOIN)
+        partitions = -(len(role.members) // -_MAX_ROLE_SIZE_FOR_THREAD_JOIN)
 
         # Split the members into temporary roles if required.
         roles_to_add = []
@@ -175,8 +179,8 @@ class ChannelAssignment(commands.Cog):
             # allocated to a temporary one.
             for i in range(partitions):
                 new_role = await self._guild.create_role(role.name)
-                start_index = i * MAX_ROLE_SIZE_FOR_THREAD_JOIN
-                end_index = (i + 1) * MAX_ROLE_SIZE_FOR_THREAD_JOIN
+                start_index = i * _MAX_ROLE_SIZE_FOR_THREAD_JOIN
+                end_index = (i + 1) * _MAX_ROLE_SIZE_FOR_THREAD_JOIN
                 for member in role.members[start_index, end_index]:
                     await member.add_roles(new_role)
 

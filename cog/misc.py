@@ -6,6 +6,7 @@ do not contribute to the main goals of the bot.
 """
 
 import discord
+import assignment
 from discord import app_commands
 from discord.ext import commands
 
@@ -40,6 +41,7 @@ class Misc(commands.Cog):
             role_from: The role to add members from.
             role_to: The role to add members to.
         """
+        assignment.disable_member_update = True
 
         # Defer the bot's response to give time for
         # the members to be added to the role.
@@ -54,6 +56,8 @@ class Misc(commands.Cog):
             f'Successfully added members from '
             f'{role_from.mention} to {role_to.mention}!'
         )
+
+        assignment.disable_member_update = False
 
 
 async def setup(bot: commands.Bot) -> None:
