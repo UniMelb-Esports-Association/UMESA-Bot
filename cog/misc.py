@@ -80,7 +80,7 @@ class Misc(commands.Cog):
             ][0]
 
             await bot_message.edit(
-                content=f'Registered this thread with \'{channel.name.replace("-", " ").upper()}!\''
+                content=f'Registered this thread with \'{channel.name.replace("-", " ").upper()}\'!'
             )
 
         await interaction.followup.send('Fixed!')
