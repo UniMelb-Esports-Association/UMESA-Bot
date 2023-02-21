@@ -66,6 +66,8 @@ class Misc(commands.Cog):
         interaction: discord.Interaction,
         channel: discord.abc.GuildChannel
     ) -> None:
+        await interaction.response.defer(thinking=True)
+
         for thread in channel.threads:
             # Get the first message ever sent in the thread,
             # which is the message sent by the bot at the
@@ -76,11 +78,12 @@ class Misc(commands.Cog):
                     oldest_first=True
                 )
             ][0]
+
             await bot_message.edit(
                 content=f'Registered game: \'{channel.name.replace("-", " ").upper()}!\''
             )
 
-        await interaction.response.send('Fixed!')
+        await interaction.followup.send('Fixed!')
 
 
 async def setup(bot: commands.Bot) -> None:
