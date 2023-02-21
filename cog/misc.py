@@ -47,7 +47,7 @@ class Misc(commands.Cog):
 
         # Add the members to the role.
         for member in role_from.members:
-            await member.add_roles((role_to,))
+            await member.add_roles(role_to)
 
         # Stop deferring and report that the bot has finished.
         await interaction.followup.send(

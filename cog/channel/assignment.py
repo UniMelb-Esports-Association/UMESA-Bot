@@ -178,7 +178,7 @@ class ChannelAssignment(commands.Cog):
                 start_index = i * MAX_ROLE_SIZE_FOR_THREAD_JOIN
                 end_index = (i + 1) * MAX_ROLE_SIZE_FOR_THREAD_JOIN
                 for member in role.members[start_index, end_index]:
-                    await member.add_roles((new_role,))
+                    await member.add_roles(new_role)
 
                 roles_to_add.append(new_role)
 
