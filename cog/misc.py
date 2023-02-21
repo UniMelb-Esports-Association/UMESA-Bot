@@ -6,7 +6,7 @@ do not contribute to the main goals of the bot.
 """
 
 import discord
-import assignment
+from ..channel import assignment
 from discord import app_commands
 from discord.ext import commands
 
