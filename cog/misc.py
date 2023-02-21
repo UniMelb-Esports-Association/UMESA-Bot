@@ -6,9 +6,9 @@ do not contribute to the main goals of the bot.
 """
 
 import discord
-from channel import assignment
 from discord import app_commands
 from discord.ext import commands
+from .channel import assignment
 
 
 class Misc(commands.Cog):
