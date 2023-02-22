@@ -114,9 +114,9 @@ class ChannelManagement(commands.Cog):
             return
 
         # Delete the role.
-        role_id = self._data.role_id(channel.name)
-        role = self._guild.get_role(role_id)
-        await role.delete()
+        # role_id = self._data.role_id(channel.name)
+        # role = self._guild.get_role(role_id)
+        # await role.delete()
 
         # Delete the data file entry.
         self._data.delete_game(channel.name)

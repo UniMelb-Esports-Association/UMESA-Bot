@@ -10,8 +10,11 @@ from discord import app_commands
 from discord.ext import commands
 from data import Data, MISC_GAMES_FORUM_NAME
 
+# The maximum number of members that can be in a role for a
+# role mention in a thread to add them all to the thread
 _MAX_ROLE_SIZE_FOR_THREAD_JOIN = 99
 
+# A flag to ...
 disable_member_update = False
 
 
