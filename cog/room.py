@@ -6,6 +6,7 @@ functionality is provided to the system here.
 """
 
 import discord
+import asyncio
 from discord.ext import commands
 from data import Data
 
@@ -63,6 +64,11 @@ class Room(commands.Cog):
         # If a message is sent in the 'Modify Room' text channel, then delete
         # it and any other messages besides the 'Commands' message.
         if message.channel.id == self._data.modify_room_channel_id:
+            # Sleep for 2 seconds so that ghost messages don't appear
+            # on the client that sent the message.
+            await asyncio.sleep(2)
+
+            # Delete the messages.
             await self._clear()
 
 
