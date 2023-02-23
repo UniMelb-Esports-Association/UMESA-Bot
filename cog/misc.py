@@ -41,6 +41,11 @@ class Misc(commands.Cog):
             role_from: The role to add members from.
             role_to: The role to add members to.
         """
+
+        # Flag that the on_member_update event should be disabled,
+        # because otherwise a new member update event is fired each
+        # time a new role is assigned which rapidly leads to too many
+        # operations happening at the same time and rate limiting.
         assignment.disable_member_update = True
 
         # Defer the bot's response to give time for
@@ -57,6 +62,7 @@ class Misc(commands.Cog):
             f'{role_from.mention} to {role_to.mention}!'
         )
 
+        # Flag that the on_member_update event can be enabled again.
         assignment.disable_member_update = False
 
 

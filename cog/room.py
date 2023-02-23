@@ -32,15 +32,24 @@ class Room(commands.Cog):
         Hence to remove the clutter, all regular messages should be purged.
         """
 
-        # Get the 'Modify Room' channel
+        # Get the 'Modify Room' channel.
         modify_room_channel = self._guild.get_channel(
             self._data.modify_room_channel_id
         )
 
-        # Purge messages
+        # Get the 'Commands' message, which is the first message
+        # ever sent in the 'Modify Room' channel.
+        commands_message = [
+            msg async for msg in modify_room_channel.history(
+                limit=1,
+                oldest_first=True
+            )
+        ][0]
+
+        # Purge messages except for the 'Commands' message.
         await modify_room_channel.purge(
             limit=999,
-            check=lambda msg: msg.id != self._data.modify_room_commands_msg_id
+            check=lambda msg: msg != commands_message
         )
 
     @commands.Cog.listener()

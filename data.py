@@ -10,7 +10,7 @@ import json
 from enum import Enum
 
 DATA_FILE = 'data.json'
-MISC_GAMES_FORUM_NAME = 'misc-games'
+MISC_GAMES_CHANNEL_NAME = 'misc-games'
 
 
 class _KEY(Enum):
@@ -21,7 +21,7 @@ class _KEY(Enum):
     MODIFY_ROOM_CHANNEL = 3
     MODIFY_ROOM_COMMANDS_MSG = 4
     ROLE = 5
-    FORUM = 6
+    CHANNEL = 6
     ENTITY = 7
 
     def __str__(self):
@@ -55,8 +55,8 @@ class Data(metaclass=Singleton):
         with open(DATA_FILE, 'r') as file:
             self._data = json.load(file)
 
-        # Provide convenience attributes for the first (n-1)
-        # keys in the data file so that data lookups don't
+        # Provide convenience attributes for all keys
+        # in the data file so that data lookups don't
         # require magic strings.
         for key, value in self._data.items():
             self.__setattr__(
@@ -69,20 +69,20 @@ class Data(metaclass=Singleton):
         self,
         name: str,
         role_id: int,
-        forum_id: int,
+        channel_id: int,
     ) -> None:
         """Adds a game to the data file.
 
         Args:
             name: The name of the game in kebab case.
             role_id: The ID of the role associated with the game.
-            forum_id: The ID of the forum associated with the game.
+            channel_id: The ID of the channel associated with the game.
         """
 
         # Update the dictionary representation of the data file.
         self.entity[name] = {
             str(_KEY.ROLE): role_id,
-            str(_KEY.FORUM): forum_id,
+            str(_KEY.CHANNEL): channel_id,
         }
 
         # Write the updated dictionary to the data file.
@@ -112,14 +112,14 @@ class Data(metaclass=Singleton):
 
         return self.entity[game][str(_KEY.ROLE)]
 
-    def forum_id(self, game: str) -> int:
-        """Returns the forum ID associated with a game.
+    def channel_id(self, game: str) -> int:
+        """Returns the channel ID associated with a game.
 
         Args:
             game: The name of the game in kebab case.
         """
 
-        return self.entity[game][str(_KEY.FORUM)]
+        return self.entity[game][str(_KEY.CHANNEL)]
 
     def role_ids(self) -> list[int]:
         """Returns all role IDs associated with a game."""
@@ -129,19 +129,19 @@ class Data(metaclass=Singleton):
             for values in self.entity.values()
         ]
 
-    def forum_ids(self) -> list[int]:
-        """Returns all forum IDs associated with a game."""
+    def channel_ids(self) -> list[int]:
+        """Returns all channel IDs associated with a game."""
 
         return [
-            values[str(_KEY.FORUM)]
+            values[str(_KEY.CHANNEL)]
             for values in self.entity.values()
         ]
 
     def game(self, id_: int) -> str:
-        """Returns the name of the game in kebab case from a role or forum ID.
+        """Returns the name of a game in kebab case from a role or channel ID.
 
         Args:
-            id_: The role or forum ID associated with a game.
+            id_: The role or channel ID associated with a game.
         """
 
         for game, values in self.entity.items():

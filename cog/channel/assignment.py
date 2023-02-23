@@ -8,18 +8,18 @@ role's game. This functionality is provided here.
 import discord
 from discord import app_commands
 from discord.ext import commands
-from data import Data, MISC_GAMES_FORUM_NAME
+from data import Data, MISC_GAMES_CHANNEL_NAME
 
 # The maximum number of members that can be in a role for a
-# role mention in a thread to add them all to the thread
+# role mention in a thread to add them all to the thread.
 _MAX_ROLE_SIZE_FOR_THREAD_JOIN = 99
 
-# A flag to ...
+# A flag to disable the on_member_update event.
 disable_member_update = False
 
 
 class ChannelAssignment(commands.Cog):
-    """A class to manage forum thread assignment.
+    """A class to manage thread assignment.
 
     Attributes:
         bot: The bot to add this cog to.
@@ -59,7 +59,7 @@ class ChannelAssignment(commands.Cog):
         """
 
         # Since threads are added to the top of the thread list for
-        # their associated forum rather than the bottom, we must reverse
+        # their associated channel rather than the bottom, we must reverse
         # the order of the thread list to maintain the order of thread
         # creation in the channel list.
         threads = list(threads)
@@ -104,13 +104,15 @@ class ChannelAssignment(commands.Cog):
         """Handles when a member's roles are updated.
 
         When a member is given a new game role, they are
-        added to the threads under the forum associated
+        added to the threads under the channel associated
         with that role's game.
 
         Args:
             before: The member object before it was updated.
             after: The member object after it was updated.
         """
+
+        # Exit immediately if this event has been flagged as disabled.
         if disable_member_update:
             return
 
@@ -123,23 +125,23 @@ class ChannelAssignment(commands.Cog):
         added_role_ids = list(after_game_role_ids - before_game_role_ids)
 
         for id_ in added_role_ids:
-            # Get the forum name associated with the added role's game.
+            # Get the channel name associated with the added role's game.
             role = self._guild.get_role(id_)
-            forum_name = self._kebab(role.name)
+            channel_name = self._kebab(role.name)
 
-            # If the associated forum is 'Miscellaneous Games', then skip
-            # it since each thread in this forum is a game of its own and
-            # we want members to be able to manually follow which miscellaneous
+            # If the associated channel is 'Miscellaneous Games', then skip
+            # it since each thread in this channel is a game of its own and
+            # we want members to be able to manually join the miscellaneous
             # games they play rather than being added to all of them.
-            if forum_name == MISC_GAMES_FORUM_NAME:
+            if channel_name == MISC_GAMES_CHANNEL_NAME:
                 continue
 
-            # Get the forum's threads for the added role's game.
-            forum_id = self._data.forum_id(forum_name)
-            forum_threads = self._guild.get_channel(forum_id).threads
+            # Get the channel's threads for the added role's game.
+            channel_id = self._data.channel_id(channel_name)
+            channel_threads = self._guild.get_channel(channel_id).threads
 
-            # Add the member to the forum threads.
-            await self._add_member_to_threads(after.mention, forum_threads)
+            # Add the member to the channel's threads.
+            await self._add_member_to_threads(after.mention, channel_threads)
 
     @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name='sync')
@@ -160,8 +162,7 @@ class ChannelAssignment(commands.Cog):
             role: The role that contains the members to add.
         """
 
-        # Defer the bot's response to give
-        # time for the sync to complete.
+        # Defer the bot's response to give time for the sync to complete.
         await interaction.response.defer(thinking=True)
 
         # Calculate the number of role partitions required to add every member
@@ -193,7 +194,7 @@ class ChannelAssignment(commands.Cog):
         for role in roles_to_add:
             await self._add_member_to_threads(role.mention, channel.threads)
 
-            # Delete a role if it is temporary
+            # Delete a role if it is temporary.
             if len(roles_to_add) > 1:
                 await role.delete()
 

@@ -1,7 +1,7 @@
-"""Handles channel management relating to game forum's and their threads.
+"""Handles channel management relating to game channels and their threads.
 
-When a game's forum is created by an admin, it must be registered and
-as a game forum and an associated role must be created for it. This
+When a game's channel is created by an admin, it must be registered
+as a game channel and an associated role must be created for it. This
 and related functonality is provided here.
 """
 
@@ -11,14 +11,14 @@ from data import Data
 from discord.ext import commands, tasks
 
 # These constants are valid (and used) values for a
-# thread's auto archive duration and a forum's
+# thread's auto archive duration and a text channel's
 # default auto archive duration.
 THREE_DAYS_IN_MINS = 4320
 ONE_WEEK_IN_MINS = 10080
 
 
 class ChannelManagement(commands.Cog):
-    """A class to manage forum and thread creation/deletion.
+    """A class to manage game channel and thread creation/deletion.
 
     Attributes:
         bot: The bot to add this cog to.
@@ -48,7 +48,7 @@ class ChannelManagement(commands.Cog):
         self,
         channel: discord.abc.GuildChannel
     ) -> None:
-        """Handles when a game forum is created.
+        """Handles when a game channel is created.
 
         Args:
             channel: The channel that was created.
@@ -60,12 +60,13 @@ class ChannelManagement(commands.Cog):
             return
 
         # Make the default auto archive duration for threads
-        # in the forum 1 week (the maximum).
+        # in the channel 1 week (the maximum).
         await channel.edit(
             default_auto_archive_duration=ONE_WEEK_IN_MINS
         )
 
-        # Deny @everyone from viewing the forum.
+        # Deny @everyone from viewing the channel, sending messages
+        # and creating threads.
         await channel.set_permissions(
             self._guild.default_role,
             view_channel=False,
@@ -74,8 +75,8 @@ class ChannelManagement(commands.Cog):
             create_private_threads=False
         )
 
-        # Create a new role associated with the forum's game and
-        # give it permission to view the forum.
+        # Create a new role associated with the channel's game and
+        # give it permission to view the channel.
         game_name = self._title(channel.name)
         new_role = await self._guild.create_role(name=game_name)
         await channel.set_permissions(
@@ -102,7 +103,7 @@ class ChannelManagement(commands.Cog):
         self,
         channel: discord.abc.GuildChannel
     ) -> None:
-        """Handles when a game forum is deleted.
+        """Handles when a game channel is deleted.
 
         Args:
             channel: The channel that was deleted.
@@ -113,7 +114,7 @@ class ChannelManagement(commands.Cog):
         if channel.category_id != self._data.gaming_category_id:
             return
 
-        # Delete the role.
+        # Delete the role [THIS HAS BEEN DEEMED TOO RISKY].
         # role_id = self._data.role_id(channel.name)
         # role = self._guild.get_role(role_id)
         # await role.delete()
@@ -134,11 +135,16 @@ class ChannelManagement(commands.Cog):
         self,
         thread: discord.Thread
     ) -> None:
-        """Handles when a game forum's thread is created.
+        """Handles when a game channel's thread is created.
 
         Args:
             thread: The thread that was created.
         """
+
+        # If the thread's parent channel is not a game channel,
+        # then ignore it.
+        if thread.parent_id not in self._data.channel_ids():
+            return
 
         # Sleep for 5 seconds to allow the first message to
         # be automatically sent in the thread by it's author.
@@ -146,47 +152,50 @@ class ChannelManagement(commands.Cog):
 
         # Send a message to the created thread saying that
         # it was successfully registered with the game. This
-        # message can also be edited later with a mention
+        # message is also edited later with a mention
         # to add a member to the thread without any notification.
-        if thread.parent_id in self._data.forum_ids():
-            await thread.send(
-                f'Registered this thread with '
-                f'\'{self._title(thread.parent.name).upper()}\'!'
-            )
+        await thread.send(
+            f'Registered this thread with '
+            f'\'{self._title(thread.parent.name).upper()}\'!'
+        )
 
     @commands.Cog.listener()
     async def on_thread_delete(
         self,
         thread: discord.Thread
     ) -> None:
-        """Handles when a game forum's thread is deleted.
+        """Handles when a game channel's thread is deleted.
 
         Args:
             thread: The thread that was deleted.
         """
 
+        # If the thread's parent channel is not a game channel,
+        # then ignore it.
+        if thread.parent_id not in self._data.channel_ids():
+            return
+
         # Send a message to the log channel saying that the
         # thread has been unregistered from the game.
-        if thread.parent_id in self._data.forum_ids():
-            log_channel = self._guild.get_channel(self._data.log_channel_id)
-            await log_channel.send(
-                f'Unregistered the \'{thread.name}\' thread '
-                f'from \'{self._title(thread.parent.name).upper()}\'!'
-            )
+        log_channel = self._guild.get_channel(self._data.log_channel_id)
+        await log_channel.send(
+            f'Unregistered the \'{thread.name}\' thread '
+            f'from \'{self._title(thread.parent.name).upper()}\'!'
+        )
 
     @tasks.loop(hours=24)
     async def _keep_alive(self) -> None:
-        """Stops all game forum threads from automatically archiving.
+        """Stops all game threads from automatically archiving.
 
         It does this by changing the automatic archive duration
-        on each game forum thread and then changing it back, which
+        on each game thread and then changing it back, which
         resets the timer. The automatic archive duration is changed
         everytime the bot starts up and then every 24 hours afterwards.
         """
 
-        # Get all the game forum threads.
+        # Get all the game threads.
         threads = filter(
-            lambda thread: thread.parent_id in self._data.forum_ids(),
+            lambda thread: thread.parent_id in self._data.channel_ids(),
             self._guild.threads
         )
 
