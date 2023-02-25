@@ -9,6 +9,7 @@ import discord
 import asyncio
 from discord.ext import commands
 from data import Data
+from util import get_nth_msg
 
 
 class Room(commands.Cog):
@@ -40,17 +41,12 @@ class Room(commands.Cog):
 
         # Get the 'Commands' message, which is the first message
         # ever sent in the 'Modify Room' channel.
-        commands_message = [
-            msg async for msg in modify_room_channel.history(
-                limit=1,
-                oldest_first=True
-            )
-        ][0]
+        commands_msg = await get_nth_msg(modify_room_channel, 1)
 
         # Purge messages except for the 'Commands' message.
         await modify_room_channel.purge(
             limit=999,
-            check=lambda msg: msg != commands_message
+            check=lambda msg: msg != commands_msg
         )
 
     @commands.Cog.listener()

@@ -12,6 +12,7 @@ intents.guilds = True
 intents.members = True
 intents.messages = True
 intents.message_content = True
+intents.reactions = True
 
 # Load variables from '.env' file into the environment.
 load_dotenv()

@@ -9,6 +9,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from data import Data, MISC_GAMES_CHANNEL_NAME
+from util import get_nth_msg
 
 # The maximum number of members that can be in a role for a
 # role mention in a thread to add them all to the thread.
@@ -46,7 +47,8 @@ class ChannelAssignment(commands.Cog):
     @staticmethod
     async def _add_member_to_threads(
         mention: str,
-        threads: [discord.Thread]
+        threads: [discord.Thread],
+        misc_games: bool = False
     ) -> None:
         """Adds member(s) to a list of threads.
 
@@ -56,6 +58,7 @@ class ChannelAssignment(commands.Cog):
         Args:
             mention: The mention string to use to add the members.
             threads: The threads to be added to.
+            misc_games: Whether the threads are 'Miscellaneous Games' threads.
         """
 
         # Since threads are added to the top of the thread list for
@@ -78,15 +81,11 @@ class ChannelAssignment(commands.Cog):
         # the member to the thread, does not give them a ghost
         # ping and does not send a notification.
         for thread in threads:
-            # Get the first message ever sent in the thread,
-            # which is the message sent by the bot at the
-            # thread's creation.
-            bot_message = [
-                msg async for msg in thread.history(
-                    limit=1,
-                    oldest_first=True
-                )
-            ][0]
+            # Get the message sent by the bot at the thread's creation.
+            # This is the second message ever sent in the thread for
+            # 'Miscellaneous Games' threads and the first message ever
+            # sent for all other game threads.
+            bot_message = await get_nth_msg(thread, 2 if misc_games else 1)
 
             # Edit the bot's message with the mention, and then
             # immediately edit it again to remove the mention.
@@ -142,6 +141,47 @@ class ChannelAssignment(commands.Cog):
 
             # Add the member to the channel's threads.
             await self._add_member_to_threads(after.mention, channel_threads)
+
+    @commands.Cog.listener()
+    async def on_raw_reaction_add(
+        self,
+        event: discord.RawReactionActionEvent
+    ) -> None:
+        """Handles members reacting to 'Miscellaneous Games' threads.
+
+        When a member reacts to a 'Miscellaneous Games' thread, (i.e. its
+        first message) they are added to the thread. This is to add another
+        mechanism for joining the threads to make the process more intuitive.
+
+        Args:
+            event: The object that contains information about the reaction.
+        """
+
+        # If the reaction didn't take place in the
+        # 'Miscellaneous Games' thread, then ignore it.
+        thread = self._guild.get_thread(event.channel_id)
+        if thread.parent.name != MISC_GAMES_CHANNEL_NAME:
+            return
+
+        # If the reaction wasn't added to the first message
+        # in the thread, then ignore it.
+        first_msg = await get_nth_msg(thread, 1)
+        if event.message_id != first_msg.id:
+            return
+
+        # If the member who reacted has already been
+        # added to the thread, then ignore it.
+        reacting_member = event.member
+        thread_members = await thread.fetch_members()
+        if reacting_member in thread_members:
+            return
+
+        # Add the member who reacted to the thread.
+        await self._add_member_to_threads(
+            reacting_member,
+            (thread,),
+            misc_games=True
+        )
 
     @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name='sync')
