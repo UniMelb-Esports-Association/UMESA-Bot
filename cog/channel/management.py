@@ -6,9 +6,11 @@ and related functonality is provided here.
 """
 
 import asyncio
+
 import discord
-from data import Data
 from discord.ext import commands, tasks
+
+from data import Data
 
 # These constants are valid (and used) values for a
 # thread's auto archive duration and a text channel's

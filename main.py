@@ -1,10 +1,12 @@
 """The entry point of the program which configures and runs the bot."""
 
 import os
-import discord
 import asyncio
-from discord.ext import commands
 from dotenv import load_dotenv
+
+import discord
+from discord.ext import commands
+
 
 # Configure gateway intents.
 intents = discord.Intents.default()

@@ -45,14 +45,14 @@ python3 main.py
 ```
 
 ## Files
-As mentioned earlier, there are two files that the bot requires to function properly. Both should be located in the root of the project directory. They are listed here with a template below each one that conveys how each file should be structured and what information should start in them.
+As mentioned earlier, there are two files that the bot requires to function properly. Both should be located in the root of the project directory. They are listed here with a template below each one that conveys how each file should be structured and what data should be in them.
 
-- .env
+- `.env`
 ```
  DISCORD_TOKEN=<Discord Bot Token>
- ```
+```
 
-- data.json
+- `data.json`
 ```
 {
     "gaming-category": <Gaming Category ID>,
@@ -62,4 +62,67 @@ As mentioned earlier, there are two files that the bot requires to function prop
 }
 ```
 
-## Code Structure
+## Contributing
+The code follows strict standards for structure, formatting and documentation. You must adhere to these standards for a pull request to be accepted.
+
+### Structure
+The [`main.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/main.py) file is the entry point for the program. It configures the bot, loads the `Bot` cog in [`bot.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/cog/bot.py) and then runs the bot.
+
+#### Cogs
+A cog can be thought of as a module for the bot, and each cog has a specific purpose. Each cog is contained within its own file, and all cog files are located in the [`/cog`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/tree/main/cog) directory. A cog is represented by a class that inherits from [`discord.ext.commands.Cog`](https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?cog#discord.ext.commands.Cog). A truncated example of a cog is below.
+
+```python
+from discord.ext import commands
+
+class ExampleCog(commands.Cog):
+    def __init__(self, bot: commands.Bot) -> None:
+        self._bot = bot
+
+    # The actual code for the cog goes here...
+
+async def setup(bot: commands.Bot) -> None:
+    await bot.add_cog(ExampleCog(bot))
+```
+
+In this example, the `ExampleCog` class is the cog. It accepts a parameter of type [`Bot`](https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?bot#bot) to its constructor which represents the bot itself. The `setup` function is a hook used by [`discord.py`](https://discordpy.readthedocs.io/en/stable/index.html) to register the cog with the bot. All cogs follow this structure.
+
+#### The `Bot` Cog
+The `Bot` cog in [`bot.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/cog/bot.py) is loaded by [`main.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/main.py) and is the first cog to be loaded. The job of the `Bot` cog is mainly to load all other cogs and to [sync](https://discordpy.readthedocs.io/en/stable/interactions/api.html#discord.app_commands.CommandTree.sync) the [command tree](https://discordpy.readthedocs.io/en/stable/interactions/api.html#discord.app_commands.CommandTree), which registers all slash commands with every guild (the technical term for a server) that the bot is in. It is worth noting that the official UMESA Discord server is the only guild the bot is run in, which is also why we retrieve the first element of the [`discord.ext.commands.Bot.guilds`](https://discordpy.readthedocs.io/en/stable/ext/commands/api.html?bot#discord.ext.commands.Bot.guilds) list often throughout the code to get the object that represents the UMESA server.
+
+#### Making Additions
+Adding to the bot's code will either consist of editing an already existing cog or creating a new one. If the feature you are adding fits into the job of an already existing cog, then you can add the functionality to that. There are some extra steps if you are creating a new cog.
+
+##### Steps for Creating a New Cog
+1. Create a new file under the [`/cog`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/tree/main/cog) directory. It's name must match the name of the cog class inside the file, but the case should not match as files use `snake_case` and classes use `CamelCase`.
+2. Follow the aforementioned cog structure to write the code for a new cog in this newly created file.
+3. Add your cog to the `_COGS` constant in the [`bot.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/cog/bot.py) file by adding the path to the cog's file relative to the [`/cog`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/tree/main/cog) folder, using a '.' as the path seperator.
+
+### Formatting and Documentation
+Consistently good formatting and documentation is essential for code readability and maintability. This applies all the way down to the level of correct punctuation in comments, for example. All code should follow [Google's Python Style Guide](https://google.github.io/styleguide/pyguide.html), but it is a long document so the most important parts of the document are linked below.
+
+- [Exceptions](https://google.github.io/styleguide/pyguide.html#24-exceptions)
+- [Type Hinting](https://google.github.io/styleguide/pyguide.html#221-type-annotated-code)
+- [Line Length](https://google.github.io/styleguide/pyguide.html#3-python-style-rules)
+- [Parentheses](https://google.github.io/styleguide/pyguide.html#33-parentheses)
+- [Indentation](https://google.github.io/styleguide/pyguide.html#34-indentation)
+- [Comments and Docstrings](https://google.github.io/styleguide/pyguide.html#38-comments-and-docstrings)
+- [Strings](https://google.github.io/styleguide/pyguide.html#310-strings)
+- [Naming Conventions](https://google.github.io/styleguide/pyguide.html#3164-guidelines-derived-from-guidos-recommendations)
+- [Line Breaking](https://google.github.io/styleguide/pyguide.html#3192-line-breaking)
+- [Default Values](https://google.github.io/styleguide/pyguide.html#3194-default-values)
+
+Notably we ignore [Google's Python Style Guide](https://google.github.io/styleguide/pyguide.html) for import statements. Instead, just group related imports together with a line break in between groups, and have lines that start with `import` before lines the start with `from` within each group. If you're unsure of anything, look at the existing code or ask the technical head.
+
+### Testing your Code
+We have no good way of testing code currently. For now, leave the testing up to the technical head. In the future we may implement sharding so that multiple instances of the bot can run at once, and also add the bot to a testing server.
+
+### Git
+To eventually get your code into the `main` branch, you should follow some simple steps.
+
+1. Create a branch with a name that explains what feature you are working on.
+2. Write and add your code to that branch.
+3. Push your branch with the completed code to GitHub.
+4. Create a pull request to the main branch.
+5. Wait for an administrator to either approve or deny your pull request.
+    - If approved, great job! You've successfully made a contribution.
+    - If denied, read the comment explaining why it was denied and have a discussion with the person who denied it if you need further clarification. Engage in a cycle of fixing your code and resubmitting your pull request until it is approved.

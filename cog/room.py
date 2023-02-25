@@ -5,8 +5,9 @@ Although this system is provided by a different bot, extra
 functionality is provided to the system here.
 """
 
-import discord
 import asyncio
+import discord
+
 from discord.ext import commands
 from data import Data
 from util import get_nth_msg

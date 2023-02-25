@@ -8,8 +8,10 @@ role's game. This functionality is provided here.
 import discord
 from discord import app_commands
 from discord.ext import commands
+
 from collections import defaultdict as dd
 from typing import Iterator
+
 from data import Data, MISC_GAMES_CHANNEL_NAME
 from util import get_nth_msg
 
@@ -18,7 +20,7 @@ from util import get_nth_msg
 _MAX_ROLE_SIZE_FOR_THREAD_JOIN = 99
 
 # A flag to disable the on_member_update event.
-disable_member_update = False
+_disable_member_update = False
 
 
 class ChannelAssignment(commands.Cog):
@@ -114,7 +116,7 @@ class ChannelAssignment(commands.Cog):
         """
 
         # Exit immediately if this event has been flagged as disabled.
-        if disable_member_update:
+        if _disable_member_update:
             return
 
         # Determine the IDs of the roles that were added to the member, if any.
@@ -298,3 +300,14 @@ async def setup(bot: commands.Bot) -> None:
     """
 
     await bot.add_cog(ChannelAssignment(bot))
+
+
+def set_member_update_state(enabled: bool) -> None:
+    """Determines if the on_member_update event should run.
+
+    Args:
+        enabled: Whether the on_member_update event should run.
+    """
+
+    global _disable_member_update
+    _disable_member_update = not enabled

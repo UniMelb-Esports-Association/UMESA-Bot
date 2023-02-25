@@ -8,6 +8,7 @@ do not contribute to the main goals of the bot.
 import discord
 from discord import app_commands
 from discord.ext import commands
+
 from .channel import assignment
 
 
@@ -46,7 +47,7 @@ class Misc(commands.Cog):
         # because otherwise a new member update event is fired each
         # time a new role is assigned which rapidly leads to too many
         # operations happening at the same time and rate limiting.
-        assignment.disable_member_update = True
+        assignment.set_member_update_state(False)
 
         # Defer the bot's response to give time for
         # the members to be added to the role.
@@ -63,7 +64,7 @@ class Misc(commands.Cog):
         )
 
         # Flag that the on_member_update event can be enabled again.
-        assignment.disable_member_update = False
+        assignment.set_member_update_state(True)
 
 
 async def setup(bot: commands.Bot) -> None:

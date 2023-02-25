@@ -1,13 +1,14 @@
 """The entry point for the bot's logic.
 
-Mainly just loads all other cogs when the bot is ready.
+Mainly just loads all other cogs and syncs the
+command tree when the bot is ready.
 """
 
 from discord.ext import commands
 
 
 # The list of cogs to load.
-COGS = ('room', 'channel.management', 'channel.assignment', 'misc')
+_COGS = ('room', 'channel.management', 'channel.assignment', 'misc')
 
 
 class Bot(commands.Cog):
@@ -25,7 +26,7 @@ class Bot(commands.Cog):
         """Sets up the bot when it is ready to do so."""
 
         # Load all other cogs after the bot is ready.
-        for cog in COGS:
+        for cog in _COGS:
             await self._bot.load_extension(f'cog.{cog}')
 
         # Sync the command tree to all guilds.
