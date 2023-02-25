@@ -8,6 +8,8 @@ role's game. This functionality is provided here.
 import discord
 from discord import app_commands
 from discord.ext import commands
+from collections import defaultdict as dd
+from typing import Iterator
 from data import Data, MISC_GAMES_CHANNEL_NAME
 from util import get_nth_msg
 
@@ -47,7 +49,7 @@ class ChannelAssignment(commands.Cog):
     @staticmethod
     async def _add_member_to_threads(
         mention: str,
-        threads: [discord.Thread],
+        threads: Iterator[discord.Thread],
         misc_games: bool = False
     ) -> None:
         """Adds member(s) to a list of threads.
@@ -177,8 +179,8 @@ class ChannelAssignment(commands.Cog):
         )
 
     @discord.app_commands.checks.has_role('Admin')
-    @app_commands.command(name='sync')
-    async def sync(
+    @app_commands.command(name='sync-game')
+    async def sync_game(
         self,
         interaction: discord.Interaction,
         channel: discord.abc.GuildChannel,
@@ -234,6 +236,57 @@ class ChannelAssignment(commands.Cog):
         # Stop deferring and report that the bot has finished.
         await interaction.followup.send(
             f'Finished syncing {role.mention} with {channel.mention}!'
+        )
+
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='sync-misc')
+    async def sync_misc(
+        self,
+        interaction: discord.Interaction
+    ) -> None:
+        """Syncs reactions with 'Miscellaneous Games' threads.
+
+        Syncing means that all members who have reacted to a
+        'Miscellaneous Games' thread are added to that thread.
+
+        Args:
+            interaction: The interaction object for the slash command.
+        """
+
+        # Defer the bot's response to give time for the sync to complete.
+        await interaction.response.defer(thinking=True)
+
+        # A mapping of members to the threads they should be added to.
+        members_to_add = dd(lambda: set())
+
+        # Get the 'Miscellaneous Games' channel.
+        misc_games_channel_id = self._data.channel_id(MISC_GAMES_CHANNEL_NAME)
+        misc_games_channel = self._guild.get_channel(misc_games_channel_id)
+
+        # Populate the members_to_add dictionary.
+        for thread in misc_games_channel.threads:
+            # Get the first message in the thread, since this is
+            # the message that reactions to the threads get added to.
+            first_msg = await get_nth_msg(thread, 1)
+
+            # Get all the members that reacted to the message and add
+            # them to the members_to_add dictionary.
+            for reaction in first_msg.reactions:
+                reacters = [member async for member in reaction.users()]
+                for member in reacters:
+                    members_to_add[member].add(thread)
+
+        # Add all the members to the relevant threads.
+        for member, threads in members_to_add.items():
+            await self._add_member_to_threads(
+                member.mention,
+                threads,
+                misc_games=True
+            )
+
+        # Stop deferring and report that the bot has finished.
+        await interaction.followup.send(
+            f'Finished syncing \'Miscellaneous Games\' threads!'
         )
 
 
