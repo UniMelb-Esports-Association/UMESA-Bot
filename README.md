@@ -63,7 +63,7 @@ As mentioned earlier, there are two files that the bot requires to function prop
 ```
 
 ## Contributing
-The code follows strict standards for structure, formatting and documentation. You must adhere to these standards for a pull request to be accepted.
+The code uses the [discord.py](https://discordpy.readthedocs.io/en/stable/) library for interacting with the Discord backend in Python. You can find the API docs [here](https://discordpy.readthedocs.io/en/stable/api.html). The code also follows strict standards for structure, formatting and documentation. You must adhere to these standards for a pull request to be accepted.
 
 ### Structure
 The [`main.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/main.py) file is the entry point for the program. It configures the bot, loads the `Bot` cog in [`bot.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/cog/bot.py) and then runs the bot.
@@ -113,10 +113,10 @@ Consistently good formatting and documentation is essential for code readability
 
 Notably we ignore [Google's Python Style Guide](https://google.github.io/styleguide/pyguide.html) for import statements. Instead, just group related imports together with a line break in between groups, and have lines that start with `import` before lines the start with `from` within each group. If you're unsure of anything, look at the existing code or ask the technical head.
 
-### Testing your Code
+### Testing
 We have no good way of testing code currently. For now, leave the testing up to the technical head. In the future we may implement sharding so that multiple instances of the bot can run at once, and also add the bot to a testing server.
 
-### Git
+### Adding your Code to GitHub
 To eventually get your code into the `main` branch, you should follow some simple steps.
 
 1. Create a branch with a name that explains what feature you are working on.
