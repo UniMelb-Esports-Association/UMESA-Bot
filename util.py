@@ -4,7 +4,6 @@ import discord
 
 
 async def get_nth_msg(
-    self,
     channel: discord.TextChannel | discord.Thread,
     n: int
 ) -> None:
