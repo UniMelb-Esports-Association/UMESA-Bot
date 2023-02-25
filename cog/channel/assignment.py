@@ -163,11 +163,15 @@ class ChannelAssignment(commands.Cog):
         if thread.parent.name != MISC_GAMES_CHANNEL_NAME:
             return
 
+        print('passed first')
+
         # If the reaction wasn't added to the first message
         # in the thread, then ignore it.
         first_msg = await get_nth_msg(thread, 1)
         if event.message_id != first_msg.id:
             return
+
+        print('passed second')
 
         # If the member who reacted has already been
         # added to the thread, then ignore it.
@@ -175,6 +179,8 @@ class ChannelAssignment(commands.Cog):
         thread_members = await thread.fetch_members()
         if reacting_member in thread_members:
             return
+
+        print('passed third')
 
         # Add the member who reacted to the thread.
         await self._add_member_to_threads(
