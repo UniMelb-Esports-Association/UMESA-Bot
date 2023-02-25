@@ -169,16 +169,9 @@ class ChannelAssignment(commands.Cog):
         if event.message_id != first_msg.id:
             return
 
-        # If the member who reacted has already been
-        # added to the thread, then ignore it.
-        reacting_member = event.member
-        thread_members = await thread.fetch_members()
-        if reacting_member in thread_members:
-            return
-
         # Add the member who reacted to the thread.
         await self._add_member_to_threads(
-            reacting_member.mention,
+            event.member.mention,
             (thread,),
             misc_games=True
         )
