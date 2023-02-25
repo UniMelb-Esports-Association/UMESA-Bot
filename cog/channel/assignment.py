@@ -164,7 +164,7 @@ class ChannelAssignment(commands.Cog):
         # If the reaction didn't take place in the
         # 'Miscellaneous Games' thread, then ignore it.
         thread = self._guild.get_thread(event.channel_id)
-        if thread.parent.name != MISC_GAMES_CHANNEL_NAME:
+        if thread is None or thread.parent.name != MISC_GAMES_CHANNEL_NAME:
             return
 
         # If the reaction wasn't added to the first message
