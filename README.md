@@ -27,12 +27,12 @@ cd UMESA-Bot
 python3 -m venv venv
 ```
 
-5. Activate the virtual environment.
+5. Activate the virtual environment. (Note: Every time you run the bot you'll need to make sure you're inside the virtual environment by running this command. You can confirm it was successful by noticing your terminal prefix has changed to "venv")
 ```bash
 source venv/bin/activate
 ```
 
-6. Install dependencies into the virtual environment (Note: Every time you run the bot you'll need to make sure you're inside the virtual environment by running this command. You can confirm it was successful by noticing your terminal prefix has changed to "venv").
+6. Install dependencies into the virtual environment.
 ```bash
 pip3 install discord.py python-dotenv
 ```
