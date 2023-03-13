@@ -95,7 +95,7 @@ Adding to the bot's code will either consist of editing an already existing cog 
 ##### Steps for Creating a New Cog
 1. Create a new file under the [`/cog`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/tree/main/cog) directory. It's name must match the name of the cog class inside the file, but the case should not match as files use `snake_case` and classes use `CamelCase`.
 2. Follow the aforementioned cog structure to write the code for a new cog in this newly created file.
-3. Add your cog to the `_COGS` constant in the [`bot.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/cog/bot.py) file by adding the path to the cog's file relative to the [`/cog`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/tree/main/cog) folder, using a '.' as the path seperator.
+3. Add your cog to the `_COGS` constant in the [`bot.py`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/blob/main/cog/bot.py) file by adding the path to the cog's file relative to the [`/cog`](https://github.com/UniMelb-Esports-Association/UMESA-Bot/tree/main/cog) folder, using a '.' as the path separator.
 
 ### Formatting and Documentation
 Consistently good formatting and documentation is essential for code readability and maintability. This applies all the way down to the level of correct punctuation in comments, for example. All code should follow [Google's Python Style Guide](https://google.github.io/styleguide/pyguide.html), but it is a long document so the most important parts of the document are linked below.
