@@ -97,7 +97,7 @@ class Misc(commands.Cog):
             # Get the first message ever sent in the thread,
             # which is the message sent by the bot at the
             # thread's creation.
-            bot_message = get_nth_msg(thread, 2 if is_misc else 1)
+            bot_message = await get_nth_msg(thread, 2 if is_misc else 1)
 
             # The original content of the bot message.
             og_content = (
