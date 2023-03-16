@@ -10,6 +10,8 @@ from discord import app_commands
 from discord.ext import commands
 
 from .channel import assignment
+from util import get_nth_msg
+from data import MISC_GAMES_CHANNEL_NAME
 
 
 class Misc(commands.Cog):
@@ -65,6 +67,49 @@ class Misc(commands.Cog):
 
         # Flag that the on_member_update event can be enabled again.
         assignment.set_member_update_state(True)
+
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='fix-message')
+    async def fix_message(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.abc.GuildChannel,
+    ) -> None:
+        """Replaces a broken bot message with it's original content.
+
+        Sometimes when members are added too quickly to a thread, the
+        bot message that is edited with a mention to add them gets
+        clogged with member mentions. This manually fixes all those
+        messages for all threads in a channel by replacing the content
+        of the bot message with what it was originally.
+
+        Args:
+            interaction: The interaction object for the slash command.
+            channel: The channel with the threads that have messages to fix.
+        """
+
+        # Defer the bot's response to give time for
+        # the fix to complete.
+        await interaction.response.defer(thinking=True)
+
+        is_misc = channel.name == MISC_GAMES_CHANNEL_NAME
+        for thread in channel.threads:
+            # Get the first message ever sent in the thread,
+            # which is the message sent by the bot at the
+            # thread's creation.
+            bot_message = get_nth_msg(thread, 2 if is_misc else 1)
+
+            # The original content of the bot message.
+            og_content = (
+                f'Registered this thread with '
+                f'\'{channel.name.replace("-", " ").upper()}\'!'
+            )
+
+            # Replace the bot message with it's original content.
+            await bot_message.edit(content=og_content)
+
+        # Stop deferring and report that the bot has finished.
+        await interaction.followup.send('Fixed!')
 
 
 async def setup(bot: commands.Bot) -> None:
