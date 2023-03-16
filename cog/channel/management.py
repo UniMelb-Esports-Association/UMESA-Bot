@@ -56,9 +56,12 @@ class ChannelManagement(commands.Cog):
             channel: The channel that was created.
         """
 
-        # If a channel is created outside of the 'Gaming' category,
-        # then ignore it.
-        if channel.category_id != self._data.gaming_category_id:
+        # If a channel is created outside of the 'Gaming'
+        # or 'Team' category, then ignore it.
+        if channel.category_id not in (
+            self._data.gaming_category_id,
+            self._data.team_category_id
+        ):
             return
 
         # Make the default auto archive duration for threads
@@ -77,7 +80,7 @@ class ChannelManagement(commands.Cog):
             create_private_threads=False
         )
 
-        # Create a new role associated with the channel's game and
+        # Create a new role associated with the channel and
         # give it permission to view the channel.
         game_name = self._title(channel.name)
         new_role = await self._guild.create_role(name=game_name)
@@ -86,7 +89,7 @@ class ChannelManagement(commands.Cog):
             view_channel=True
         )
 
-        # Add the newly created game to the data file.
+        # Add the newly created channel to the data file.
         self._data.add_game(
             channel.name,
             new_role.id,
@@ -98,7 +101,7 @@ class ChannelManagement(commands.Cog):
         log_channel = self._guild.get_channel(
             self._data.log_channel_id
         )
-        await log_channel.send(f'Registered game: \'{game_name.upper()}\'')
+        await log_channel.send(f'Registered channel: \'{game_name.upper()}\'')
 
     @commands.Cog.listener()
     async def on_guild_channel_delete(
@@ -111,9 +114,12 @@ class ChannelManagement(commands.Cog):
             channel: The channel that was deleted.
         """
 
-        # If a channel is deleted outside of the 'Gaming' category,
-        # then ignore it.
-        if channel.category_id != self._data.gaming_category_id:
+        # If a channel is deleted outside of the 'Gaming'
+        # or 'Team' category, then ignore it.
+        if channel.category_id not in (
+            self._data.gaming_category_id,
+            self._data.team_category_id
+        ):
             return
 
         # Delete the role [THIS HAS BEEN DEEMED TOO RISKY].
@@ -130,7 +136,9 @@ class ChannelManagement(commands.Cog):
         # Send a message to the log channel saying that
         # the game has been deleted successfully.
         game_name = self._title(channel.name)
-        await log_channel.send(f'Unregistered game: \'{game_name.upper()}\'')
+        await log_channel.send(
+            f'Unregistered channel: \'{game_name.upper()}\''
+        )
 
     @commands.Cog.listener()
     async def on_thread_create(

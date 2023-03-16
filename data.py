@@ -17,12 +17,13 @@ class _KEY(Enum):
     """Represents the keys in the data file."""
 
     GAMING_CATEGORY = 1
-    LOG_CHANNEL = 2
-    MODIFY_ROOM_CHANNEL = 3
-    MODIFY_ROOM_COMMANDS_MSG = 4
-    ROLE = 5
-    CHANNEL = 6
-    ENTITY = 7
+    TEAM_CATEGORY = 2
+    LOG_CHANNEL = 3
+    MODIFY_ROOM_CHANNEL = 4
+    MODIFY_ROOM_COMMANDS_MSG = 5
+    ROLE = 6
+    CHANNEL = 7
+    ENTITY = 8
 
     def __str__(self):
         """Converts a member's name into kebab case."""
