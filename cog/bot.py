@@ -8,7 +8,7 @@ from discord.ext import commands
 
 
 # The list of cogs to load.
-_COGS = ('room', 'channel.management', 'channel.assignment', 'misc')
+_COGS = ('room', 'channel.management', 'channel.assignment', 'misc', 'membership')
 
 
 class Bot(commands.Cog):
