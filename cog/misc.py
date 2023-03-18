@@ -9,6 +9,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import io
 from csv import reader
 
 from .channel import assignment
@@ -136,8 +137,8 @@ class Misc(commands.Cog):
         # Process the given CSV file and add members to
         # the given role if an unambigious match is found,
         # otherwise report them appropriately.
-        file = await customisations_csv.to_file()
-        with open(file.fp, 'rb') as file:
+        file = io.BytesIO(await customisations_csv.read())
+        with open(file.fp, 'r') as file:
             no_matches = []
             multiple_matches = []
 
