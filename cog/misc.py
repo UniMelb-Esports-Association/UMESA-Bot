@@ -9,6 +9,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+from csv import reader
+
 from .channel import assignment
 from util import get_nth_msg
 from data import MISC_GAMES_CHANNEL_NAME
@@ -110,6 +112,59 @@ class Misc(commands.Cog):
 
         # Stop deferring and report that the bot has finished.
         await interaction.followup.send('Fixed!')
+
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='update-membership')
+    async def update_membership(
+        self,
+        interaction: discord.Interaction,
+        customisations_csv: discord.File,
+        role: discord.Role
+    ) -> None:
+        """Adds members from an UMSU customisations file to a role.
+
+        Args:
+            interaction: The interaction object for the slash command.
+            customisations_csv: The members customisations list.
+            role: The membership role to add members to.
+        """
+
+        # Defer the bot's response to give time for
+        # the members to be added to the role.
+        await interaction.response.defer(thinking=True)
+
+        # Process the given CSV file and add members to
+        # the given role if an unambigious match is found,
+        # otherwise report them appropriately.
+        with open(customisations_csv.fp, 'r') as file:
+            no_matches = []
+            multiple_matches = []
+
+            csv_reader = reader(file)
+            for row in csv_reader:
+                # 5 here is the index of the questions column.
+                if row[5] == 'Discord ID':
+                    # 6 here is the index of the answers column.
+                    member_username = row[6]
+
+                    matching_members = await self._guild.query_members(
+                        query=member_username,
+                        limit=2
+                    )
+                    match len(matching_members):
+                        case 0:
+                            no_matches.append(member_username)
+                        case 1:
+                            await matching_members[0].add_roles(role)
+                        case 2:
+                            multiple_matches.append(member_username)
+
+        # Stop deferring and send a summary.
+        await interaction.followup.send(
+            f'Done!\n\n'
+            f'No matches found for: {no_matches}\n'
+            f'Multiple matches found for: {multiple_matches}'
+        )
 
 
 async def setup(bot: commands.Bot) -> None:
