@@ -137,8 +137,8 @@ class Misc(commands.Cog):
         # Process the given CSV file and add members to
         # the given role if an unambigious match is found,
         # otherwise report them appropriately.
-        file = io.BytesIO(await customisations_csv.read())
-        with open(file.fp, 'r') as file:
+        file = await customisations_csv.read()
+        with open(file, 'rb') as file:
             no_matches = []
             multiple_matches = []
 
