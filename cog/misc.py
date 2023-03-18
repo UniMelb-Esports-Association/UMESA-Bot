@@ -118,14 +118,14 @@ class Misc(commands.Cog):
     async def update_membership(
         self,
         interaction: discord.Interaction,
-        customisations_csv: discord.File,
+        customisations_csv: discord.Attachment,
         role: discord.Role
     ) -> None:
         """Adds members from an UMSU customisations file to a role.
 
         Args:
             interaction: The interaction object for the slash command.
-            customisations_csv: The members customisations list.
+            customisations_csv: The members customisations csv file.
             role: The membership role to add members to.
         """
 
@@ -136,7 +136,8 @@ class Misc(commands.Cog):
         # Process the given CSV file and add members to
         # the given role if an unambigious match is found,
         # otherwise report them appropriately.
-        with open(customisations_csv.fp, 'r') as file:
+        file = await customisations_csv.to_file()
+        with open(file.fp, 'rb') as file:
             no_matches = []
             multiple_matches = []
 
