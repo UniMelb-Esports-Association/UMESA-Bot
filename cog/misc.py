@@ -9,7 +9,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import io
+import pandas as pd
 from csv import reader
 
 from .channel import assignment
@@ -137,28 +137,27 @@ class Misc(commands.Cog):
         # Process the given CSV file and add members to
         # the given role if an unambigious match is found,
         # otherwise report them appropriately.
-        with io.BytesIO(await customisations_csv.read()) as file:
-            no_matches = []
-            multiple_matches = []
+        no_matches = []
+        multiple_matches = []
 
-            csv_reader = reader(file)
-            for row in csv_reader:
-                # 5 here is the index of the questions column.
-                if row[5] == 'Discord ID':
-                    # 6 here is the index of the answers column.
-                    member_username = row[6]
+        csv = pd.read_csv(customisations_csv.url)
+        for row in csv:
+            # 5 here is the index of the questions column.
+            if row[5] == 'Discord ID':
+                # 6 here is the index of the answers column.
+                member_username = row[6]
 
-                    matching_members = await self._guild.query_members(
-                        query=member_username,
-                        limit=2
-                    )
-                    match len(matching_members):
-                        case 0:
-                            no_matches.append(member_username)
-                        case 1:
-                            await matching_members[0].add_roles(role)
-                        case 2:
-                            multiple_matches.append(member_username)
+                matching_members = await self._guild.query_members(
+                    query=member_username,
+                    limit=2
+                )
+                match len(matching_members):
+                    case 0:
+                        no_matches.append(member_username)
+                    case 1:
+                        await matching_members[0].add_roles(role)
+                    case 2:
+                        multiple_matches.append(member_username)
 
         # Stop deferring and send a summary.
         await interaction.followup.send(
