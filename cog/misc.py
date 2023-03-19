@@ -144,7 +144,11 @@ class Misc(commands.Cog):
         with closing(requests.get(customisations_csv.url, stream=True)) as r:
             reader = csv.reader(codecs.iterdecode(r.iter_lines(), 'utf-8'))
             for row in reader:
-                print(row)
+                # If the row doesn't contain enough values to be able
+                # to have the information we need, then skip it.
+                if len(row) < 8:
+                    continue
+
                 # 5 is the index of the questions column.
                 if row[5] == 'Discord ID':
                     # 6 is the index of the answers column.
