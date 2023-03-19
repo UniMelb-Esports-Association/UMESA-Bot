@@ -143,6 +143,7 @@ class Misc(commands.Cog):
         multiple_matches = []
         with closing(requests.get(customisations_csv.url, stream=True)) as r:
             reader = csv.reader(codecs.iterdecode(r.iter_lines(), 'utf-8'))
+            print(reader)
             for row in reader:
                 # 5 is the index of the questions column.
                 if row[5] == 'Discord ID':
