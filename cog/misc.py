@@ -9,7 +9,6 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import pandas as pd
 from csv import reader
 
 from .channel import assignment
@@ -140,11 +139,11 @@ class Misc(commands.Cog):
         no_matches = []
         multiple_matches = []
 
-        csv = pd.read_csv(customisations_csv.url)
-        for row in csv:
-            # 5 here is the index of the questions column.
+        csv_reader = reader((await customisations_csv.to_file()).fp)
+        for row in csv_reader:
+            # 5 is the index of the questions column.
             if row[5] == 'Discord ID':
-                # 6 here is the index of the answers column.
+                # 6 is the index of the answers column.
                 member_username = row[6]
 
                 matching_members = await self._guild.query_members(
