@@ -9,9 +9,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
-import urllib2
-
-from csv import reader
+import requests
+import csv
 
 from .channel import assignment
 from util import get_nth_msg
@@ -142,9 +141,10 @@ class Misc(commands.Cog):
         multiple_matches = []
 
         # Download and parse the given CSV file.
-        response = urllib2.urlopen(customisations_csv.url)
-        csv_reader = reader(response)
-        for row in csv_reader:
+        response = requests.get(customisations_csv.url)
+        text = response.iter_lines()
+        reader = csv.reader(text, delimiter=',')
+        for row in reader:
             # 5 is the index of the questions column.
             if row[5] == 'Discord ID':
                 # 6 is the index of the answers column.
