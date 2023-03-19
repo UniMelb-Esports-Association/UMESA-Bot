@@ -170,7 +170,7 @@ class Misc(commands.Cog):
         # Stop deferring and send a summary.
         await interaction.followup.send(
             f'Done!\n\n'
-            f'No matches found for: {no_matches}\n'
+            f'No matches found for: {no_matches}\n\n'
             f'Multiple matches found for: {multiple_matches}'
         )
 
