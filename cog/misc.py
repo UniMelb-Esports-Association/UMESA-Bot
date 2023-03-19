@@ -9,6 +9,11 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import codecs
+import requests
+import csv
+from contextlib import closing
+
 from .channel import assignment
 from util import get_nth_msg
 from data import MISC_GAMES_CHANNEL_NAME
@@ -110,6 +115,64 @@ class Misc(commands.Cog):
 
         # Stop deferring and report that the bot has finished.
         await interaction.followup.send('Fixed!')
+
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='update-membership')
+    async def update_membership(
+        self,
+        interaction: discord.Interaction,
+        customisations_csv: discord.Attachment,
+        role: discord.Role
+    ) -> None:
+        """Adds members from an UMSU customisations file to a role.
+
+        Args:
+            interaction: The interaction object for the slash command.
+            customisations_csv: The members customisations csv file.
+            role: The membership role to add members to.
+        """
+
+        # Defer the bot's response to give time for
+        # the members to be added to the role.
+        await interaction.response.defer(thinking=True)
+
+        # Download and process the given CSV file and add members to
+        # the given role if an unambigious match is found,
+        # otherwise report them appropriately.
+        no_matches = []
+        multiple_matches = []
+        with closing(requests.get(customisations_csv.url, stream=True)) as r:
+            reader = csv.reader(codecs.iterdecode(r.iter_lines(), 'utf-8'))
+            for row in reader:
+                # If the row doesn't contain enough values to be able
+                # to have the information we need, then skip it.
+                if len(row) < 7:
+                    continue
+
+                # 5 is the index of the questions column.
+                if row[5] == 'Discord ID':
+                    # 6 is the index of the answers column.
+                    # Here we also remove the tag if it exists
+                    # because the query_members method doesn't like it.
+                    member_username = row[6].split('#')[0]
+
+                    matching_members = await self._guild.query_members(
+                        query=member_username
+                    )
+                    match len(matching_members):
+                        case 0:
+                            no_matches.append(member_username)
+                        case 1:
+                            await matching_members[0].add_roles(role)
+                        case _:
+                            multiple_matches.append(member_username)
+
+        # Stop deferring and send a summary.
+        await interaction.followup.send(
+            f'Done!\n\n'
+            f'No matches found for: {no_matches}\n\n'
+            f'Multiple matches found for: {multiple_matches}'
+        )
 
 
 async def setup(bot: commands.Bot) -> None:
