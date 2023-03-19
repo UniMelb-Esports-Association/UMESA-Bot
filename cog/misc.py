@@ -152,18 +152,19 @@ class Misc(commands.Cog):
                 # 5 is the index of the questions column.
                 if row[5] == 'Discord ID':
                     # 6 is the index of the answers column.
-                    member_username = row[6]
+                    # Here we also remove the tag if it exists
+                    # because the query_members method doesn't like it.
+                    member_username = row[6].split('#')[0]
 
                     matching_members = await self._guild.query_members(
-                        query=member_username,
-                        limit=2
+                        query=member_username
                     )
                     match len(matching_members):
                         case 0:
                             no_matches.append(member_username)
                         case 1:
                             await matching_members[0].add_roles(role)
-                        case 2:
+                        case _:
                             multiple_matches.append(member_username)
 
         # Stop deferring and send a summary.
