@@ -9,6 +9,8 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import urllib2
+
 from csv import reader
 
 from .channel import assignment
@@ -139,7 +141,9 @@ class Misc(commands.Cog):
         no_matches = []
         multiple_matches = []
 
-        csv_reader = reader((await customisations_csv.read()).decode())
+        # Download and parse the given CSV file.
+        response = urllib2.urlopen(customisations_csv.url)
+        csv_reader = reader(response)
         for row in csv_reader:
             # 5 is the index of the questions column.
             if row[5] == 'Discord ID':
