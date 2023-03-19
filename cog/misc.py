@@ -146,7 +146,7 @@ class Misc(commands.Cog):
             for row in reader:
                 # If the row doesn't contain enough values to be able
                 # to have the information we need, then skip it.
-                if len(row) < 8:
+                if len(row) < 7:
                     continue
 
                 # 5 is the index of the questions column.
