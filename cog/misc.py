@@ -139,7 +139,7 @@ class Misc(commands.Cog):
         no_matches = []
         multiple_matches = []
 
-        csv_reader = reader((await customisations_csv.to_file()).fp)
+        csv_reader = reader((await customisations_csv.read()).decode())
         for row in csv_reader:
             # 5 is the index of the questions column.
             if row[5] == 'Discord ID':
