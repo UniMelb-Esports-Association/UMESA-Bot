@@ -9,8 +9,10 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 
+import codecs
 import requests
 import csv
+from contextlib import closing
 
 from .channel import assignment
 from util import get_nth_msg
@@ -134,33 +136,30 @@ class Misc(commands.Cog):
         # the members to be added to the role.
         await interaction.response.defer(thinking=True)
 
-        # Process the given CSV file and add members to
+        # Download and process the given CSV file and add members to
         # the given role if an unambigious match is found,
         # otherwise report them appropriately.
         no_matches = []
         multiple_matches = []
+        with closing(requests.get(customisations_csv.url, stream=True)) as r:
+            reader = csv.reader(codecs.iterdecode(r.iter_lines(), 'utf-8'))
+            for row in reader:
+                # 5 is the index of the questions column.
+                if row[5] == 'Discord ID':
+                    # 6 is the index of the answers column.
+                    member_username = row[6]
 
-        # Download and parse the given CSV file.
-        response = requests.get(customisations_csv.url)
-        text = response.iter_lines()
-        reader = csv.reader(text, delimiter=',')
-        for row in reader:
-            # 5 is the index of the questions column.
-            if row[5] == 'Discord ID':
-                # 6 is the index of the answers column.
-                member_username = row[6]
-
-                matching_members = await self._guild.query_members(
-                    query=member_username,
-                    limit=2
-                )
-                match len(matching_members):
-                    case 0:
-                        no_matches.append(member_username)
-                    case 1:
-                        await matching_members[0].add_roles(role)
-                    case 2:
-                        multiple_matches.append(member_username)
+                    matching_members = await self._guild.query_members(
+                        query=member_username,
+                        limit=2
+                    )
+                    match len(matching_members):
+                        case 0:
+                            no_matches.append(member_username)
+                        case 1:
+                            await matching_members[0].add_roles(role)
+                        case 2:
+                            multiple_matches.append(member_username)
 
         # Stop deferring and send a summary.
         await interaction.followup.send(
