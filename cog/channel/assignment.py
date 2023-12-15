@@ -10,7 +10,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from collections import defaultdict as dd
-from typing import Iterator
+from collections.abc import Iterable
 
 from data import Data, MISC_GAMES_CHANNEL_NAME
 from util import get_nth_msg
@@ -54,7 +54,7 @@ class ChannelAssignment(commands.Cog):
     @staticmethod
     async def _add_member_to_threads(
         mention: str,
-        threads: Iterator[discord.Thread],
+        threads: Iterable[discord.Thread],
         misc_games: bool = False
     ) -> None:
         """Adds member(s) to a list of threads.
@@ -194,7 +194,7 @@ class ChannelAssignment(commands.Cog):
     async def _sync_threads(
         self,
         interaction: discord.Interaction,
-        threads: Iterator[discord.Thread],
+        threads: Iterable[discord.Thread],
         role: discord.Role
     ) -> None:
         """Syncs a role with a collection of threads.
@@ -249,24 +249,23 @@ class ChannelAssignment(commands.Cog):
         )
 
     @discord.app_commands.checks.has_role('Admin')
-    @app_commands.command(name='sync-threads')
-    async def sync_threads(
+    @app_commands.command(name='sync-thread')
+    async def sync_thread(
         self,
         interaction: discord.Interaction,
-        threads: Iterator[discord.Thread],
+        thread: discord.Thread,
         role: discord.Role
     ):
-        """Syncs a role with a collection of threads.
+        """Syncs a role with a thread.
 
-        Syncing means that every member in a role is added
-        to every thread in the collection.
+        Syncing means that every member in a role is added to the thread.
 
         Args:
             interaction: The interaction object for the slash command.
-            threads: The collection of threads to be added to.
+            thread: The thread to be added to.
             role: The role that contains the members to add.
         """
-        await self._sync_threads(interaction, threads, role)
+        await self._sync_threads(interaction, (thread,), role)
 
     @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name='sync-game')
