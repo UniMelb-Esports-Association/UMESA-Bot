@@ -10,7 +10,7 @@ from discord import app_commands
 from discord.ext import commands
 
 from collections import defaultdict as dd
-from typing import Iterator
+from collections.abc import Iterable
 
 from data import Data, MISC_GAMES_CHANNEL_NAME
 from util import get_nth_msg
@@ -19,6 +19,9 @@ from util import get_nth_msg
 # role mention in a thread to add them all to the thread.
 _MAX_ROLE_SIZE_FOR_THREAD_JOIN = 99
 
+# The order to add members to threads in a gaming channel.
+_THREAD_ADD_ORDER = (1, 2, 3)
+
 # A flag to disable the on_member_update event.
 _disable_member_update = False
 
@@ -26,7 +29,7 @@ _disable_member_update = False
 class ChannelAssignment(commands.Cog):
     """A class to manage thread assignment.
 
-    Attributes:
+    Args:
         bot: The bot to add this cog to.
     """
 
@@ -51,7 +54,7 @@ class ChannelAssignment(commands.Cog):
     @staticmethod
     async def _add_member_to_threads(
         mention: str,
-        threads: Iterator[discord.Thread],
+        threads: Iterable[discord.Thread],
         misc_games: bool = False
     ) -> None:
         """Adds member(s) to a list of threads.
@@ -64,12 +67,20 @@ class ChannelAssignment(commands.Cog):
             threads: The threads to be added to.
             misc_games: Whether the threads are 'Miscellaneous Games' threads.
         """
+        threads = list(threads)
+
+        # If one of the threads is a 'Patch Notes' thread, then correct the thread order.
+        # We correct the thread order because of the 'Patch Bot Incident', where a failure
+        # to continue paying for Patch Bot resulted in deleted settings and a messed up thread order.
+        patch_notes_thread_marker_list = ['Patch Notes' in thread.name for thread in threads]
+        if True in patch_notes_thread_marker_list:
+            patch_notes_thread_index = patch_notes_thread_marker_list.index(True)
+            threads.insert(0, threads.pop(patch_notes_thread_index))
 
         # Since threads are added to the top of the thread list for
         # their associated channel rather than the bottom, we must reverse
         # the order of the thread list to maintain the order of thread
         # creation in the channel list.
-        threads = list(threads)
         threads.reverse()
 
         # Add the member to each thread. It's worth noting that
@@ -180,25 +191,22 @@ class ChannelAssignment(commands.Cog):
             misc_games=True
         )
 
-    @discord.app_commands.checks.has_role('Admin')
-    @app_commands.command(name='sync-game')
-    async def sync_game(
+    async def _sync_threads(
         self,
         interaction: discord.Interaction,
-        channel: discord.abc.GuildChannel,
+        threads: Iterable[discord.Thread],
         role: discord.Role
     ) -> None:
-        """Syncs a role with a game channel's threads.
+        """Syncs a role with a collection of threads.
 
         Syncing means that every member in a role is added
-        to every thread in a game channel in the correct order.
+        to every thread in the collection.
 
         Args:
             interaction: The interaction object for the slash command.
-            channel: The game channel that contains the threads to be added to.
+            threads: The collection of threads to be added to.
             role: The role that contains the members to add.
         """
-
         # Defer the bot's response to give time for the sync to complete.
         await interaction.response.defer(thinking=True)
 
@@ -229,7 +237,7 @@ class ChannelAssignment(commands.Cog):
 
         # Add all members to the game channel threads.
         for role in roles_to_add:
-            await self._add_member_to_threads(role.mention, channel.threads)
+            await self._add_member_to_threads(role.mention, threads)
 
             # Delete a role if it is temporary.
             if len(roles_to_add) > 1:
@@ -237,8 +245,52 @@ class ChannelAssignment(commands.Cog):
 
         # Stop deferring and report that the bot has finished.
         await interaction.followup.send(
-            f'Finished syncing {role.mention} with {channel.mention}!'
+            f'Finished syncing {role.mention} with {[thread.mention for thread in threads]}!'
         )
+
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='sync-threads')
+    async def sync_threads(
+        self,
+        interaction: discord.Interaction,
+        threads: Iterable[discord.Thread],
+        role: discord.Role
+    ):
+        """Syncs a role with a collection of threads.
+
+        Syncing means that every member in a role is added
+        to every thread in the collection.
+
+        Args:
+            interaction: The interaction object for the slash command.
+            threads: The collection of threads to be added to.
+            role: The role that contains the members to add.
+        """
+        await self._sync_threads(interaction, threads, role)
+
+    @discord.app_commands.checks.has_role('Admin')
+    @app_commands.command(name='sync-game')
+    async def sync_game(
+        self,
+        interaction: discord.Interaction,
+        channel: discord.abc.GuildChannel,
+        role: discord.Role
+    ) -> None:
+        """Syncs a role with a game channel's threads.
+
+        Syncing means that every member in a role is added
+        to every thread in a game channel in the correct order.
+
+        Args:
+            interaction: The interaction object for the slash command.
+            channel: The game channel that contains the threads to be added to.
+            role: The role that contains the members to add.
+        """
+        if not isinstance(channel, discord.abc.TextChannel):
+            await interaction.response.send_message(content='Not a text channel.', ephemeral=True)
+            return
+
+        await self._sync_threads(interaction, channel.threads, role)
 
     @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name='sync-misc')

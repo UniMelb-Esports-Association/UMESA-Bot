@@ -14,7 +14,7 @@ import requests
 import csv
 from contextlib import closing
 
-from .channel import assignment
+from channel import assignment
 from util import get_nth_msg
 from data import MISC_GAMES_CHANNEL_NAME
 
@@ -22,7 +22,7 @@ from data import MISC_GAMES_CHANNEL_NAME
 class Misc(commands.Cog):
     """A class to manage miscellaneous functions.
 
-    Attributes:
+    Args:
         bot: The bot to add this cog to.
     """
 
@@ -92,6 +92,9 @@ class Misc(commands.Cog):
             interaction: The interaction object for the slash command.
             channel: The channel with the threads that have messages to fix.
         """
+        if not isinstance(channel, discord.abc.TextChannel):
+            await interaction.response.send_message(content='Not a text channel.', ephemeral=True)
+            return
 
         # Defer the bot's response to give time for
         # the fix to complete.

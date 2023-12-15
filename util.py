@@ -2,11 +2,13 @@
 
 import discord
 
+from discord import Message
+
 
 async def get_nth_msg(
     channel: discord.TextChannel | discord.Thread,
     n: int
-) -> None:
+) -> Message:
     """Get the nth message in a text channel or thread.
 
     Args:

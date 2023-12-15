@@ -14,7 +14,7 @@ _COGS = ('room', 'channel.management', 'channel.assignment', 'misc')
 class Bot(commands.Cog):
     """A class to handle general bot things.
 
-    Attributes:
+    Args:
         bot: The bot to add this cog to.
     """
 

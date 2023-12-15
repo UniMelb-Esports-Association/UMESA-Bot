@@ -22,7 +22,7 @@ ONE_WEEK_IN_MINS = 10080
 class ChannelManagement(commands.Cog):
     """A class to manage game channel and thread creation/deletion.
 
-    Attributes:
+    Args:
         bot: The bot to add this cog to.
     """
 
@@ -55,6 +55,8 @@ class ChannelManagement(commands.Cog):
         Args:
             channel: The channel that was created.
         """
+        if not isinstance(channel, discord.abc.TextChannel):
+            return
 
         # If a channel is created outside of the 'Gaming'
         # or 'Team' category, then ignore it.
@@ -205,7 +207,7 @@ class ChannelManagement(commands.Cog):
 
         # Get all the game threads.
         threads = filter(
-            lambda thread: thread.parent_id in self._data.channel_ids(),
+            lambda t: t.parent_id in self._data.channel_ids(),
             self._guild.threads
         )
 

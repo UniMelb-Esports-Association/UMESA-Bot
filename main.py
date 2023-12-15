@@ -16,7 +16,7 @@ intents.messages = True
 intents.message_content = True
 intents.reactions = True
 
-# Load variables from '.env' file into the environment.
+# Load variables from the '.env' file into the environment.
 load_dotenv()
 
 # Get the Discord token from the environment.

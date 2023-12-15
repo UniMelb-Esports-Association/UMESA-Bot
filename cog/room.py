@@ -16,7 +16,7 @@ from util import get_nth_msg
 class Room(commands.Cog):
     """A class that contains room-management-related events.
 
-    Attributes:
+    Args:
         bot: The bot to add this cog to.
     """
 
