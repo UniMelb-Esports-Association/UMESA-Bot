@@ -10,7 +10,6 @@ from discord import app_commands
 from discord.ext import commands
 
 from collections import defaultdict as dd
-from collections.abc import Iterable
 
 from data import Data, MISC_GAMES_CHANNEL_NAME
 from util import get_nth_msg
@@ -54,7 +53,7 @@ class ChannelAssignment(commands.Cog):
     @staticmethod
     async def _add_member_to_threads(
         mention: str,
-        threads: Iterable[discord.Thread],
+        threads: list[discord.Thread] | tuple[discord.Thread] | set[discord.Thread],
         misc_games: bool = False
     ) -> None:
         """Adds member(s) to a list of threads.
@@ -194,7 +193,7 @@ class ChannelAssignment(commands.Cog):
     async def _sync_threads(
         self,
         interaction: discord.Interaction,
-        threads: Iterable[discord.Thread],
+        threads: list[discord.Thread],
         role: discord.Role
     ) -> None:
         """Syncs a role with a collection of threads.
@@ -253,7 +252,7 @@ class ChannelAssignment(commands.Cog):
     async def sync_threads(
         self,
         interaction: discord.Interaction,
-        threads: Iterable[discord.Thread],
+        threads: list[discord.Thread],
         role: discord.Role
     ):
         """Syncs a role with a collection of threads.
