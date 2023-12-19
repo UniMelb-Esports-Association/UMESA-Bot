@@ -236,12 +236,12 @@ class ChannelAssignment(commands.Cog):
                 roles_to_add.append(new_role)
 
         # Add all members to the game channel threads.
-        for role in roles_to_add:
-            await self._add_member_to_threads(role.mention, threads)
+        for role_ in roles_to_add:
+            await self._add_member_to_threads(role_.mention, threads)
 
             # Delete a role if it is temporary.
             if len(roles_to_add) > 1:
-                await role.delete()
+                await role_.delete()
 
         # Stop deferring and report that the bot has finished.
         await interaction.followup.send(
