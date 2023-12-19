@@ -69,13 +69,16 @@ class ChannelAssignment(commands.Cog):
         """
         threads = list(threads)
 
-        # If one of the threads is a 'Patch Notes' thread, then correct the thread order.
+        # If any of the threads is a 'Patch Notes' thread, then correct the thread order.
         # We correct the thread order because of the 'Patch Bot Incident', where a failure
         # to continue paying for Patch Bot resulted in deleted settings and a messed up thread order.
         patch_notes_thread_marker_list = ['Patch Notes' in thread.name for thread in threads]
-        if True in patch_notes_thread_marker_list:
+        while True in patch_notes_thread_marker_list:
             patch_notes_thread_index = patch_notes_thread_marker_list.index(True)
             threads.insert(0, threads.pop(patch_notes_thread_index))
+
+            patch_notes_thread_marker_list.pop(patch_notes_thread_index)
+            patch_notes_thread_marker_list.insert(0, False)
 
         # Since threads are added to the top of the thread list for
         # their associated channel rather than the bottom, we must reverse
