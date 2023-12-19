@@ -92,7 +92,7 @@ class Misc(commands.Cog):
             interaction: The interaction object for the slash command.
             channel: The channel with the threads that have messages to fix.
         """
-        if not isinstance(channel, discord.abc.TextChannel):
+        if not isinstance(channel, discord.TextChannel):
             await interaction.response.send_message(content='Not a text channel.', ephemeral=True)
             return
 

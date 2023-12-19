@@ -285,7 +285,7 @@ class ChannelAssignment(commands.Cog):
             channel: The game channel that contains the threads to be added to.
             role: The role that contains the members to add.
         """
-        if not isinstance(channel, discord.abc.TextChannel):
+        if not isinstance(channel, discord.TextChannel):
             await interaction.response.send_message(content='Not a text channel.', ephemeral=True)
             return
 

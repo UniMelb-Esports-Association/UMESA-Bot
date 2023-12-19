@@ -55,7 +55,7 @@ class ChannelManagement(commands.Cog):
         Args:
             channel: The channel that was created.
         """
-        if not isinstance(channel, discord.abc.TextChannel):
+        if not isinstance(channel, discord.TextChannel):
             return
 
         # If a channel is created outside of the 'Gaming'
