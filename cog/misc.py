@@ -14,7 +14,7 @@ import requests
 import csv
 from contextlib import closing
 
-from channel import assignment
+from cog.channel import assignment
 from util import get_nth_msg
 from data import MISC_GAMES_CHANNEL_NAME
 
