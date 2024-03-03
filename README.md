@@ -58,7 +58,6 @@ As mentioned earlier, there are two files that the bot requires to function prop
     "gaming-category": <Gaming Category ID>,
     "team-category": <Team Category ID>,
     "log-channel": <Log Channel ID>,
-    "modify-room-channel": <Modify Room Channel ID>,
     "entity": {}
 }
 ```

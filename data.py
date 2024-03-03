@@ -55,7 +55,6 @@ class Data(metaclass=Singleton):
         self.gaming_category_id = None
         self.team_category_id = None
         self.log_channel_id = None
-        self.modify_room_channel_id = None
         self.entity = None
 
         # Load the data file as a dictionary.
