@@ -44,6 +44,7 @@ class TicketManagement(commands.Cog):
             embed: button to be sent
         """
         
+        # add button to View() so it can be displayed
         view = discord.ui.View(timeout=None)
         view.add_item(button)
         
