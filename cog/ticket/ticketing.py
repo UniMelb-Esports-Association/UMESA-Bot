@@ -32,6 +32,24 @@ class TicketManagement(commands.Cog):
         
         await interaction.channel.send(embed=embed)
     
+    async def send_button(
+        self,
+        interaction: discord.Interaction,
+        button: discord.ui.Button
+    ) -> None:
+        """Sends a button to the channel where the method was called
+        
+        Args:
+            interaction: The interaction object for the slash command
+            embed: button to be sent
+        """
+        
+        view = discord.ui.View(timeout=None)
+        view.add_item(button)
+        
+        await interaction.channel.send(view=view)
+        
+    
         
         
 async def setup(bot: commands.Bot) -> None:
