@@ -38,7 +38,7 @@ class Ticket_Data(metaclass=Singleton):
         with open(BASE_PATH + EMBED_FILE, 'r') as file:
             self._embed = json.load(file)
             
-    def module_names(self) -> list:
+    def module_names(self) -> list[str]:
         """Return a list of all ticket modules"""
         
         return [self._modules[module] for module in self._modules.keys()]
