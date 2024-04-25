@@ -9,7 +9,6 @@ from .ticket_data import Ticket_Data
 import discord
 from discord.ext import commands
 
-
 class TicketManagement(commands.Cog):
     """A class to manage ticket creation/deletion
     
@@ -36,21 +35,17 @@ class TicketManagement(commands.Cog):
         
         await interaction.channel.send(embed=embed)
     
-    async def send_button(
+    async def send_view(
         self,
         interaction: discord.Interaction,
-        button: discord.ui.Button
+        view: discord.ui.View
     ) -> None:
-        """Sends a button to the channel where the method was called
+        """Sends a view to the channel where the method was called
         
         Args:
             interaction: The interaction object for the slash command
-            button: button object to be sent
+            view: view object to be sent
         """
-        
-        # add button to View() so it can be displayed
-        view = discord.ui.View(timeout=None)
-        view.add_item(button)
         
         await interaction.channel.send(view=view)
     
@@ -58,7 +53,8 @@ class TicketManagement(commands.Cog):
         self,
         name: str,
         category_id: int,
-        permissions: dict
+        user_id: int,
+        permissions: discord.PermissionOverwrite
     ) -> None:
         """Creates a new channel in a specified category and add the user who
             initiated the interaction
@@ -66,15 +62,16 @@ class TicketManagement(commands.Cog):
         Args:
             interaction: The interaction object for the slash command
             name: Name of the channel
+            user_id: Id of the user who created the interaction
             category_id: Id of the new channel's category
-            permissions: Dictionary of {user: discord.PermissionsOverwrite}
+            permissions: permissions in the form of PermissionsOverwrite
         """
         
         category = discord.utils.get(self._guild.categories, id=category_id)
-        await self._guild.create_text_channel(
+        channel = await self._guild.create_text_channel(
             name,
-            category=category,
-            overwrites=permissions)
+            category=category)
+        await channel.set_permissions(user_id, overwrite=permissions)
         
         
 async def setup(bot: commands.Bot) -> None:
