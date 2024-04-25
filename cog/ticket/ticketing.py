@@ -57,18 +57,24 @@ class TicketManagement(commands.Cog):
     async def create_channel(
         self,
         name: str,
-        category_id: int
+        category_id: int,
+        permissions: dict
     ) -> None:
-        """Creates a new channel in a specified category
+        """Creates a new channel in a specified category and add the user who
+            initiated the interaction
         
         Args:
             interaction: The interaction object for the slash command
             name: Name of the channel
             category_id: Id of the new channel's category
+            permissions: Dictionary of {user: discord.PermissionsOverwrite}
         """
         
         category = discord.utils.get(self._guild.categories, id=category_id)
-        await self._guild.create_text_channel(name, category=category)
+        await self._guild.create_text_channel(
+            name,
+            category=category,
+            overwrites=permissions)
         
         
 async def setup(bot: commands.Bot) -> None:
