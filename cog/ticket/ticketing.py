@@ -4,7 +4,7 @@ This is a generic interface intended to be used as an abstract class. For
 specific functionality, another Cog should be created and inherit this class.
 """
 
-from .ticket_data import Ticket_Data
+from .ticket_data import TicketData
 
 import discord
 from discord.ext import commands
@@ -55,7 +55,7 @@ class TicketManagement(commands.Cog):
         category_id: int,
         user_id: int,
         permissions: discord.PermissionOverwrite
-    ) -> None:
+    ) -> discord.channel:
         """Creates a new channel in a specified category and add the user who
             initiated the interaction
         
@@ -65,6 +65,9 @@ class TicketManagement(commands.Cog):
             user_id: Id of the user who created the interaction
             category_id: Id of the new channel's category
             permissions: permissions in the form of PermissionsOverwrite
+            
+        Returns:
+            The discord.channel object which has been created
         """
         
         category = discord.utils.get(self._guild.categories, id=category_id)
@@ -72,6 +75,8 @@ class TicketManagement(commands.Cog):
             name,
             category=category)
         await channel.set_permissions(user_id, overwrite=permissions)
+        
+        return channel
         
         
 async def setup(bot: commands.Bot) -> None:
@@ -82,7 +87,7 @@ async def setup(bot: commands.Bot) -> None:
         bot: The bot to add this cog to.
     """
     
-    module_names = Ticket_Data().module_names()
+    module_names = TicketData().module_names()
     
     for module in module_names:
         await bot.load_extension(f'cog.ticket.{module["file_name"]}')
