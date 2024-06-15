@@ -77,6 +77,23 @@ class TicketManagement(commands.Cog):
         await channel.set_permissions(user_id, overwrite=permissions)
         
         return channel
+    
+    def create_embed(
+        self,
+        title: str,
+        text: str,
+    ) -> discord.Embed:
+        """Creates an embed with the specified parameters
+        
+        Args:
+            title: Title of the embed
+            text: Body text of the embed
+        """
+        
+        embed = discord.Embed()
+        embed.title = title
+        embed.description = text
+        return embed
         
         
 async def setup(bot: commands.Bot) -> None:
