@@ -22,7 +22,7 @@ class Singleton(type):
         return cls.instance
 
 
-class Ticket_Data(metaclass=Singleton):
+class TicketData(metaclass=Singleton):
     """Handles the persistent data in the data file.
 
     Provides I/O methods for the data file and parses
