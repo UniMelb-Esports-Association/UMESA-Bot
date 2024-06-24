@@ -23,31 +23,31 @@ class TicketManagement(commands.Cog):
         
     async def send_embed(
         self,
-        interaction: discord.Interaction,
+        channel: discord.channel,
         embed: discord.Embed
     ) -> None:
         """Sends an embed to the channel where the method was called
         
         Args:
-            interaction: The interaction object for the slash command
+            channel: channel to send embed to
             embed: embed object to be sent
         """
         
-        await interaction.channel.send(embed=embed)
+        await channel.send(embed=embed)
     
     async def send_view(
         self,
-        interaction: discord.Interaction,
+        channel: discord.channel,
         view: discord.ui.View
     ) -> None:
         """Sends a view to the channel where the method was called
         
         Args:
-            interaction: The interaction object for the slash command
+            channel: channel to send view to
             view: view object to be sent
         """
         
-        await interaction.channel.send(view=view)
+        await channel.send(view=view)
     
     async def create_channel(
         self,
@@ -82,17 +82,23 @@ class TicketManagement(commands.Cog):
         self,
         title: str,
         text: str,
+        colour: int=None,
     ) -> discord.Embed:
         """Creates an embed with the specified parameters
         
         Args:
             title: Title of the embed
             text: Body text of the embed
+        
+        Returns:
+            Created embed object
         """
         
         embed = discord.Embed()
         embed.title = title
         embed.description = text
+        embed.colour=colour
+        
         return embed
         
         
