@@ -8,7 +8,6 @@ import json
 
 BASE_PATH = './cog/ticket/'
 MODULE_FILE = 'ticket_data.json'
-EMBED_FILE = 'embeds.json'
 
 class Singleton(type):
     """A singleton metaclass."""
@@ -35,9 +34,6 @@ class TicketData(metaclass=Singleton):
         with open(BASE_PATH + MODULE_FILE, 'r') as file:
             self._modules = json.load(file)
             
-        with open(BASE_PATH + EMBED_FILE, 'r') as file:
-            self._embed = json.load(file)
-            
     def module_names(self) -> list[str]:
         """Return a list of all ticket modules"""
         
@@ -50,11 +46,3 @@ class TicketData(metaclass=Singleton):
             name: name of the ticket module
         """
         return self._modules[name]
-            
-    def embed(self, name: str) -> dict:
-        """Returns an embed by name supplied in _embeds
-        
-        Args:
-            name: name of the embed required
-        """
-        return self._embed[name]
