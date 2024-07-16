@@ -246,6 +246,8 @@ class ClipTicketManagement(TicketManagement):
 class TicketButton(
     discord.ui.DynamicItem[discord.ui.Button],
     template=r'make_ticket:([0-9]+)'):
+    """Dynamic, persistent button to handle ticket creation"""
+    
     def __init__(self, label=None, emoji=None):
         super().__init__(
             discord.ui.Button(
