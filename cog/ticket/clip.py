@@ -211,7 +211,7 @@ class ClipTicketManagement(TicketManagement):
         """
         
         present = datetime.now(timezone.utc)
-        two_weeks_ago = present - timedelta(minutes=1)
+        two_weeks_ago = present - timedelta(weeks=2)
         tickets_deleted = 0
         
         await interaction.response.defer(thinking=True, ephemeral=True)
