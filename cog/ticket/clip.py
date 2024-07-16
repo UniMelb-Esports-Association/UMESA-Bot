@@ -235,7 +235,7 @@ class ClipTicketManagement(TicketManagement):
         for channel in ClipTicketManagement.CATEGORY.channels:
             last_message = channel.history(limit=1)
             date = [message.created_at async for message in last_message][0]
-            if (date > two_weeks_ago):
+            if (date < two_weeks_ago):
                 await channel.delete()
                 tickets_deleted += 1
             
