@@ -75,8 +75,24 @@ class ClipTicketManagement(TicketManagement):
                 ticket_id += 1
         
         return ticket_id
+    
+    def check_user_permission(self, user: discord.User) -> bool:
+        """Checks whether the user has the admin role
+        
+        Args:
+            user: user whose roles are checked
+            
+        Returns:
+            Boolean
+        """
+        
+        user_roles = [role.id for role in user.roles]
+        
+        if ClipTicketManagement.ADMIN_ROLE in user_roles:
+            return True
+        
+        return False
 
-    @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(name="ticket_booth")
     async def ticket_booth(
         self,
@@ -87,6 +103,13 @@ class ClipTicketManagement(TicketManagement):
         Args:
             interaction: The interaction object for the slash command
         """
+        
+        if not self.check_user_permission(self, interaction.user):
+            await interaction.response.send_message(
+                "Insufficient permissions", ephemeral=True
+            )
+            return
+        
 
         await interaction.response.send_modal(TicketBoothParameters(self))
     
@@ -116,7 +139,7 @@ class ClipTicketManagement(TicketManagement):
            await self.send_view(interaction.channel, view)
         except:
             await interaction.response.send_message(
-                "Invalid emoji, try again", ephemeral=True)
+                "ERROR: Invalid emoji, try again", ephemeral=True)
             return
         await interaction.response.send_message(
             "Ticket booth created", ephemeral=True)
@@ -130,13 +153,13 @@ class ClipTicketManagement(TicketManagement):
             interaction: The interaction object for the slash command
             information: Answers filled out in TicketQuestions modal
         """
+        
         num_tickets_opened = 0
         member_roles = [role.id for role in interaction.user.roles]
         instance = ClipTicketManagement(cls.BOT)
         
         # ignore maximum tickets for allowed users (specified in init)
         if cls.ADMIN_ROLE not in member_roles:
-            
             for channel in cls.CATEGORY.channels:
                 if interaction.user in channel.members:
                     num_tickets_opened += 1
@@ -182,7 +205,6 @@ class ClipTicketManagement(TicketManagement):
         if channel.category_id != cls.CATEGORY_ID:
             return
     
-    @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(
         name="ticket_cleanup",
         description="deletes all tickets older than 2 weeks"
@@ -196,6 +218,13 @@ class ClipTicketManagement(TicketManagement):
         Args:
             interaction: The interaction object for the slash command
         """
+        
+        # check user permissions
+        if not self.check_user_permission(interaction.user):
+            await interaction.response.send_message(
+                "Insufficient permissions", ephemeral=True
+            )
+            return
         
         present = datetime.now(timezone.utc)
         two_weeks_ago = present - timedelta(weeks=2)
