@@ -179,21 +179,6 @@ class ClipTicketManagement(TicketManagement):
         # Only check for channels in this category
         if channel.category_id != cls.CATEGORY_ID:
             return
-
-    @app_commands.command(
-        name="delete_tickets",
-        description="deletes all tickets"
-    )
-    async def delete_ticket(self, interaction) -> None:
-        category = discord.utils.get(
-            self.bot.guilds[0].categories, id=self._category_id
-        )
-        num_deleted = 0
-        await interaction.response.defer(ephemeral=True)
-        for channel in category.channels:
-            await channel.delete()
-            num_deleted += 1
-        await interaction.followup.send(f"{num_deleted} channels deleted")
     
     @discord.app_commands.checks.has_role('Admin')
     @app_commands.command(
