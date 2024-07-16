@@ -37,7 +37,9 @@ class ClipTicketManagement(TicketManagement):
         self._data = TicketData()
         
         ClipTicketManagement.BOT = bot
-        ClipTicketManagement.CATEGORY_ID = self._data.module("clip")["category_id"]
+        ClipTicketManagement.CATEGORY_ID = (
+            self._data.module("clip")["category_id"]
+        )
         ClipTicketManagement.CATEGORY = discord.utils.get(
             self.bot.guilds[0].categories, id=ClipTicketManagement.CATEGORY_ID
         )
@@ -212,7 +214,9 @@ class ClipTicketManagement(TicketManagement):
             f"{tickets_deleted} ticket(s) deleted")
         
         
-class TicketButton(discord.ui.DynamicItem[discord.ui.Button], template=r'make_ticket:([0-9]+)'):
+class TicketButton(
+    discord.ui.DynamicItem[discord.ui.Button],
+    template=r'make_ticket:([0-9]+)'):
     def __init__(self, label=None, emoji=None):
         super().__init__(
             discord.ui.Button(
@@ -224,7 +228,10 @@ class TicketButton(discord.ui.DynamicItem[discord.ui.Button], template=r'make_ti
         )
 
     @classmethod
-    async def from_custom_id(cls, interaction: discord.Interaction, item: discord.ui.Button, match: re.Match[str], /):
+    async def from_custom_id(cls,
+                             interaction: discord.Interaction,
+                             item: discord.ui.Button, 
+                             match: re.Match[str], /):
         time = int(match.group(1))
         return cls(time)
 
