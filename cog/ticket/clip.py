@@ -226,22 +226,6 @@ class ClipTicketManagement(TicketManagement):
         await interaction.followup.send(
             f"{tickets_deleted} ticket(s) deleted")
         
-    @app_commands.command(
-        name="custom-button",
-        description="choose values for button"
-    )
-    async def custom_button(
-        self,
-        interaction: discord.Interaction, 
-        label: str, 
-        emoji: str
-    ) -> None:
-        view = discord.ui.View(timeout=None)
-        view.add_item(TicketButton(label, emoji))
-        await self.send_view(interaction.channel, view=view)
-        
-        await interaction.response.send_message("Button made", ephemeral=True)
-        
         
 class TicketButton(discord.ui.DynamicItem[discord.ui.Button], template=r'make_ticket:([0-9]+)'):
     def __init__(self, label=None, emoji=None):
