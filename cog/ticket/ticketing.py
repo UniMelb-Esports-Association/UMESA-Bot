@@ -113,6 +113,6 @@ async def setup(bot: commands.Bot) -> None:
     module_names = TicketData().module_names()
     
     for module in module_names:
-        await bot.load_extension(f'cog.ticket.{module["file_name"]}')
+        await bot.load_extension(f'cog.ticket.{module}')
 
     await bot.add_cog(TicketManagement(bot))
