@@ -37,7 +37,7 @@ class TicketData(metaclass=Singleton):
     def module_names(self) -> list[str]:
         """Return a list of all ticket modules"""
         
-        return [self._modules[module] for module in self._modules.keys()]
+        return list(self._modules.keys())
             
     def module(self, name:str) -> dict:
         """Returns the supplied information on a ticket module
