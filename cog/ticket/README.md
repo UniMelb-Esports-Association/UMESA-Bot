@@ -14,7 +14,7 @@ IDs for categories, roles and channels can be obtained by activating developer m
 {
     "clip": {
         "category_id: <Clips Category ID>",
-        "role_id": <Role ID"
+        "role_id": <Role ID>"
     }
 }
 ```
