@@ -14,6 +14,7 @@ from discord.ext import commands
 from datetime import datetime, timedelta, timezone
 import time
 import re
+import json
 
 class ClipTicketManagement(TicketManagement):
     """A class to manage ticket creation/deletion for clips
@@ -312,11 +313,20 @@ class TicketQuestions(discord.ui.Modal):
     """Popup form that contains questions"""
     
     title = "Fill this out!"
-    animal = discord.ui.TextInput(
-        label="What is your favourite animal?", 
-        style=discord.TextStyle.short,
-        placeholder="Dog"
-    )
+    
+    with open("./cog/ticket/clip_questions.json") as json_data:
+        questions = json.load(json_data)
+        json_data.close()
+        
+    # Currently, there is no way to efficiently read data from a file to a modal
+    # As such, we manually create variables and assign attributes per question
+        
+    q1 = discord.ui.TextInput(
+            label = questions["q1"]["label"],
+            placeholder= questions["q1"]["placeholder"]
+        )
+    
+    # Convert all answers into their values inputted
     
     def __init__(
         self, 
@@ -326,8 +336,9 @@ class TicketQuestions(discord.ui.Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         
-        answers = {}
-        answers["animal"] = self.animal
+        answers = {
+            "q1": self.q1.value
+        }
         
         await ClipTicketManagement.create_ticket(
             interaction,
