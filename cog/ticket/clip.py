@@ -121,8 +121,7 @@ class ClipTicketManagement(TicketManagement):
         embed_text: str,
         button_label: str,
         button_emoji: str,
-        embed_colour: int=None,
- 
+        embed_colour: int=None
     ) -> None:
         """Generate and send embed/button in Discord
         
@@ -147,12 +146,16 @@ class ClipTicketManagement(TicketManagement):
         
     
     @classmethod
-    async def create_ticket(cls, interaction, information) -> None:
+    async def create_ticket(
+        cls, 
+        interaction: discord.Interaction,
+        ticket_answers: discord.Embed
+        ) -> None:
         """Creates a new ticket
 
         Args:
             interaction: The interaction object for the slash command
-            information: Answers filled out in TicketQuestions modal
+            ticket_answers: Answers filled out in TicketQuestions modal
         """
         
         num_tickets_opened = 0
@@ -183,8 +186,7 @@ class ClipTicketManagement(TicketManagement):
         cls.used_ticket_ids.append(ticket_id)
 
         await channel.send(f"Hello, {interaction.user.mention}")
-        await channel.send(f"Favourite animal: {information['animal']}")
-        
+        await channel.send(embed=ticket_answers)
         await ClipTicketManagement.send_view(instance, channel, HideButton())
         
         await interaction.response.send_message(
@@ -312,11 +314,11 @@ class HideButton(discord.ui.View):
 class TicketQuestions(discord.ui.Modal):
     """Popup form that contains questions"""
     
-    title = "Fill this out!"
-    
     with open("./cog/ticket/clip_questions.json") as json_data:
         questions = json.load(json_data)
         json_data.close()
+        
+    title = questions["title"]
         
     # Currently, there is no way to efficiently read data from a file to a modal
     # As such, we manually create variables and assign attributes per question
@@ -336,13 +338,17 @@ class TicketQuestions(discord.ui.Modal):
 
     async def on_submit(self, interaction: discord.Interaction):
         
-        answers = {
-            "q1": self.q1.value
-        }
+        # Build embed containg answers
+        embed = discord.Embed(
+            title="Response",
+        )
+        embed.add_field(
+            name=f"{self.q1.label}",
+            value=f"{self.q1}")
         
         await ClipTicketManagement.create_ticket(
             interaction,
-            answers
+            embed
         )
     
 class TicketBoothParameters(discord.ui.Modal):
