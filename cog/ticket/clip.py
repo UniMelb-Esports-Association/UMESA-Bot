@@ -105,7 +105,7 @@ class ClipTicketManagement(TicketManagement):
             interaction: The interaction object for the slash command
         """
         
-        if not self.check_user_permission(self, interaction.user):
+        if not self.check_user_permission(interaction.user):
             await interaction.response.send_message(
                 "Insufficient permissions", ephemeral=True
             )
@@ -149,13 +149,11 @@ class ClipTicketManagement(TicketManagement):
     async def create_ticket(
         cls, 
         interaction: discord.Interaction,
-        ticket_answers: discord.Embed
         ) -> None:
         """Creates a new ticket
 
         Args:
             interaction: The interaction object for the slash command
-            ticket_answers: Answers filled out in TicketQuestions modal
         """
         
         num_tickets_opened = 0
@@ -184,9 +182,6 @@ class ClipTicketManagement(TicketManagement):
             permission
         )
         cls.used_ticket_ids.append(ticket_id)
-
-        await channel.send(f"Hello, {interaction.user.mention}")
-        await channel.send(embed=ticket_answers)
         await ClipTicketManagement.send_view(instance, channel, HideButton())
         
         await interaction.response.send_message(
@@ -270,7 +265,7 @@ class TicketButton(
         return cls(time)
 
     async def callback(self, interaction):
-        await interaction.response.send_modal(TicketQuestions())
+        await ClipTicketManagement.create_ticket(interaction)
 
         
 class HideButton(discord.ui.View):
@@ -309,47 +304,6 @@ class HideButton(discord.ui.View):
             thinking=True, ephemeral=True)
         await interaction.channel.edit(sync_permissions=True)
         await interaction.followup.send("Done!", ephemeral=True)
-    
-
-class TicketQuestions(discord.ui.Modal):
-    """Popup form that contains questions"""
-    
-    with open("./cog/ticket/clip_questions.json") as json_data:
-        questions = json.load(json_data)
-        json_data.close()
-        
-    title = questions["title"]
-        
-    # Currently, there is no way to efficiently read data from a file to a modal
-    # As such, we manually create variables and assign attributes per question
-        
-    q1 = discord.ui.TextInput(
-            label = questions["q1"]["label"],
-            placeholder= questions["q1"]["placeholder"]
-        )
-    
-    # Convert all answers into their values inputted
-    
-    def __init__(
-        self, 
-    ) -> None:
-
-        super().__init__()
-
-    async def on_submit(self, interaction: discord.Interaction):
-        
-        # Build embed containg answers
-        embed = discord.Embed(
-            title="Response",
-        )
-        embed.add_field(
-            name=f"{self.q1.label}",
-            value=f"{self.q1}")
-        
-        await ClipTicketManagement.create_ticket(
-            interaction,
-            embed
-        )
     
 class TicketBoothParameters(discord.ui.Modal):
     """Set parameters for ticket booth here"""
