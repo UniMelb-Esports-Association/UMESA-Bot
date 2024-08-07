@@ -111,7 +111,6 @@ class ClipTicketManagement(TicketManagement):
             )
             return
         
-
         await interaction.response.send_modal(TicketBoothParameters(self))
     
     async def create_ticket_booth(
@@ -143,7 +142,6 @@ class ClipTicketManagement(TicketManagement):
             return
         await interaction.response.send_message(
             "Ticket booth created", ephemeral=True)
-        
     
     @classmethod
     async def create_ticket(
@@ -182,8 +180,15 @@ class ClipTicketManagement(TicketManagement):
             permission
         )
         cls.used_ticket_ids.append(ticket_id)
-        await ClipTicketManagement.send_view(instance, channel, HideButton())
         
+        embeds = ClipTicketManagement.load_embed(
+            instance, "cog/ticket/clip_questions.json"
+            )
+        
+        for embed in embeds:
+            await ClipTicketManagement.send_embed(instance, channel, embed)
+        await channel.send(f"{interaction.user.mention}")
+        await ClipTicketManagement.send_view(instance, channel, HideButton())
         await interaction.response.send_message(
             "Ticket created", ephemeral=True)
     
