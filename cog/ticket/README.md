@@ -19,20 +19,16 @@ IDs for categories, roles and channels can be obtained by activating developer m
 }
 ```
 
-- `clip_questions.json` is used to store the fields needed in the [`clip.py`](clip.py) TicketQuestions modal
-Currently it stores questions and their relevant fields for n questions.
+- `clip_questions.json` is used to store the fields needed for ticket creation in [`clip.py`](clip.py) 
+A sample embed is shown below
 ```
 {
-    "title": <Title of Modal>
-    "q1": {
-        "label": <Label Text>,
-        "placeholder": <Placeholder Text>
+      "description": "## Title",
+      "color": 4638960,
+      "image": {
+        "url": "https://cdn.discordapp.com/attachments/1076108638755762246/1270728609002422302/team_1_logo.png?ex=66b4c1bd&is=66b3703d&hm=2312b4b1c04e834be2168bf581b0ee3746e218c6669249aadd46c43343d9c4fd&"
+      },
+      "description": "Some text goes here"
     }
-    ...
-    "qn": {
-        "label": <Label Text>,
-        "placeholder": <Placeholder Text>
-    }
-}
 ```
 Ensure that `ticket_data.json` and `clip_questions.json` are located in the [same folder](./) as this file.
