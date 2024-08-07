@@ -174,7 +174,6 @@ poetry.toml
 
 data.json
 ticket_data.json
-clip_questions.json
 
 .idea
 .python-version
