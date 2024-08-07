@@ -9,6 +9,8 @@ from .ticket_data import TicketData
 import discord
 from discord.ext import commands
 
+import json
+
 class TicketManagement(commands.Cog):
     """A class to manage ticket creation/deletion
     
@@ -24,7 +26,7 @@ class TicketManagement(commands.Cog):
     async def send_embed(
         self,
         channel: discord.channel,
-        embed: discord.Embed
+        embed: list
     ) -> None:
         """Sends an embed to the channel where the method was called
         
@@ -34,6 +36,31 @@ class TicketManagement(commands.Cog):
         """
         
         await channel.send(embed=embed)
+        
+    def load_embed(
+        self,
+        filepath: str,
+    ) -> None:
+        """Loads embed(s) from file
+        
+        Args:
+            filepath: filepath to json where embed data is stored
+            
+        Returns:
+            List of embeds
+        """
+    
+        with open(filepath, "r") as file:
+            data = json.load(file)
+            
+        embeds = []
+        
+
+        for embed in data["embeds"]:
+            test = discord.Embed.from_dict(embed)
+            embeds.append(test)
+        
+        return embeds
     
     async def send_view(
         self,
