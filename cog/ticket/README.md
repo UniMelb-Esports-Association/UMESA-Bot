@@ -29,6 +29,6 @@ A sample embed is shown below
         "url": "https://cdn.discordapp.com/attachments/1076108638755762246/1270728609002422302/team_1_logo.png?ex=66b4c1bd&is=66b3703d&hm=2312b4b1c04e834be2168bf581b0ee3746e218c6669249aadd46c43343d9c4fd&"
       },
       "description": "Some text goes here"
-    }
+}
 ```
 Ensure that `ticket_data.json` and `clip_questions.json` are located in the [same folder](./) as this file.
