@@ -14,7 +14,6 @@ from discord.ext import commands
 from datetime import datetime, timedelta, timezone
 import time
 import re
-import json
 
 class ClipTicketManagement(TicketManagement):
     """A class to manage ticket creation/deletion for clips
