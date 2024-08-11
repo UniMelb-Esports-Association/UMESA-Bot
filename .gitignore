@@ -173,6 +173,8 @@ poetry.toml
 # End of https://www.toptal.com/developers/gitignore/api/python
 
 data.json
+ticket_data.json
+clip_questions.json
 
 .idea
 .python-version
