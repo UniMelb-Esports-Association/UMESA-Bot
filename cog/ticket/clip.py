@@ -25,6 +25,7 @@ class ClipTicketManagement(TicketManagement):
     MAX_TICKETS = 500
     MAX_TICKET_ID = 999
     MAX_TICKETS_PER_USER = 3
+    TIME_UNTIL_TICKET_STALE = timedelta(weeks=2)
     BOT = None
     CATEGORY_ID = None
     CATEGORY = None
@@ -212,7 +213,7 @@ class ClipTicketManagement(TicketManagement):
         description="deletes all tickets older than 2 weeks"
     )
     async def clean_tickets(self, interaction) -> None:
-        """Delete all tickets with the last message sent over 2 weeks ago
+        """Delete all tickets with the last message sent before the stale time.
         Note this method uses channel.history not channel.last_message as
         channel.last_message may point to a deleted message which throws an 
         error
@@ -229,7 +230,7 @@ class ClipTicketManagement(TicketManagement):
             return
         
         present = datetime.now(timezone.utc)
-        two_weeks_ago = present - timedelta(weeks=2)
+        stale_date = present - self.TIME_UNTIL_TICKET_STALE
         tickets_deleted = 0
         
         await interaction.response.defer(thinking=True, ephemeral=True)
@@ -237,7 +238,7 @@ class ClipTicketManagement(TicketManagement):
         for channel in ClipTicketManagement.CATEGORY.channels:
             last_message = channel.history(limit=1)
             date = [message.created_at async for message in last_message][0]
-            if (date < two_weeks_ago):
+            if (date < stale_date):
                 await channel.delete()
                 tickets_deleted += 1
             
