@@ -306,10 +306,14 @@ class HideButton(discord.ui.View):
         interaction: The interaction object created by button
         button: Required by Discord interaction but not used here
         """
-        await interaction.response.defer(
-            thinking=True, ephemeral=True)
+        await interaction.response.send_message("Closing ticket...")
         await interaction.channel.edit(sync_permissions=True)
-        await interaction.followup.send("Done!", ephemeral=True)
+        
+        # Check if the ticket was empty (last message was from this bot)
+        last_message = interaction.channel.history(limit=1)
+        user = [message.author async for message in last_message][0]
+        if user == interaction.client.user:
+            await interaction.channel.delete()
     
 class TicketBoothParameters(discord.ui.Modal):
     """Set parameters for ticket booth here"""
