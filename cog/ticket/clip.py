@@ -154,6 +154,8 @@ class ClipTicketManagement(TicketManagement):
             interaction: The interaction object for the slash command
         """
         
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        
         num_tickets_opened = 0
         member_roles = [role.id for role in interaction.user.roles]
         instance = ClipTicketManagement(cls.BOT)
@@ -189,8 +191,7 @@ class ClipTicketManagement(TicketManagement):
             await ClipTicketManagement.send_embed(instance, channel, embed)
         await channel.send(f"{interaction.user.mention}")
         await ClipTicketManagement.send_view(instance, channel, HideButton())
-        await interaction.response.send_message(
-            "Ticket created", ephemeral=True)
+        await interaction.edit_original_response(content="Ticket created")
     
     @classmethod
     @commands.Cog.listener()
