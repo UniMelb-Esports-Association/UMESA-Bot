@@ -129,7 +129,7 @@ class ClipTicketManagement(TicketManagement):
             embed_text: description of the embed
         """
 
-        embed = self.create_embed(embed_text, embed_title, embed_colour)
+        embed = self.create_embed(embed_title, embed_text, embed_colour)
         await self.send_embed(interaction.channel, embed)
         view = discord.ui.View(timeout=None)
         view.add_item(TicketButton(button_label, button_emoji))
