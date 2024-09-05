@@ -308,12 +308,13 @@ class HideButton(discord.ui.View):
         """
         await interaction.response.send_message("Closing ticket...")
         await interaction.channel.edit(sync_permissions=True)
-        
-        # Check if the ticket was empty (last message was from this bot)
-        last_message = interaction.channel.history(limit=1)
-        user = [message.author async for message in last_message][0]
+        # Check if the ticket was empty (second last message was from this bot)
+        # Ignores the closing ticket message.
+        last_message = interaction.channel.history(limit=2)
+        user = [message.author async for message in last_message][1]
         if user == interaction.client.user:
             await interaction.channel.delete()
+        
     
 class TicketBoothParameters(discord.ui.Modal):
     """Set parameters for ticket booth here"""
