@@ -130,7 +130,7 @@ class ClipTicketManagement(TicketManagement):
             embed_text: description of the embed
         """
 
-        embed = self.create_embed(embed_text, embed_title, embed_colour)
+        embed = self.create_embed(embed_title, embed_text, embed_colour)
         await self.send_embed(interaction.channel, embed)
         view = discord.ui.View(timeout=None)
         view.add_item(TicketButton(button_label, button_emoji))
@@ -153,6 +153,8 @@ class ClipTicketManagement(TicketManagement):
         Args:
             interaction: The interaction object for the slash command
         """
+        
+        await interaction.response.defer(thinking=True, ephemeral=True)
         
         num_tickets_opened = 0
         member_roles = [role.id for role in interaction.user.roles]
@@ -189,8 +191,7 @@ class ClipTicketManagement(TicketManagement):
             await ClipTicketManagement.send_embed(instance, channel, embed)
         await channel.send(f"{interaction.user.mention}")
         await ClipTicketManagement.send_view(instance, channel, HideButton())
-        await interaction.response.send_message(
-            "Ticket created", ephemeral=True)
+        await interaction.edit_original_response(content="Ticket created")
     
     @classmethod
     @commands.Cog.listener()
@@ -305,10 +306,14 @@ class HideButton(discord.ui.View):
         interaction: The interaction object created by button
         button: Required by Discord interaction but not used here
         """
-        await interaction.response.defer(
-            thinking=True, ephemeral=True)
+        await interaction.response.send_message("Closing ticket...")
         await interaction.channel.edit(sync_permissions=True)
-        await interaction.followup.send("Done!", ephemeral=True)
+        
+        # Check if the ticket was empty (last message was from this bot)
+        last_message = interaction.channel.history(limit=1)
+        user = [message.author async for message in last_message][0]
+        if user == interaction.client.user:
+            await interaction.channel.delete()
     
 class TicketBoothParameters(discord.ui.Modal):
     """Set parameters for ticket booth here"""
