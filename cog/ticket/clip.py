@@ -34,23 +34,6 @@ class ClipTicketManagement(TicketManagement):
             int(channel.name[-3:])
             for channel in self._category.channels
             if self._ticket_prefix in channel.name]
-    
-    def check_user_permission(self, user: discord.User) -> bool:
-        """Checks whether the user has the admin role
-        
-        Args:
-            user: user whose roles are checked
-            
-        Returns:
-            Boolean
-        """
-        
-        user_roles = [role.id for role in user.roles]
-        
-        if self._admin_role in user_roles:
-            return True
-        
-        return False
 
     @app_commands.command(name="ticket_booth")
     async def ticket_booth(

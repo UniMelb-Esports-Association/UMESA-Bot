@@ -171,6 +171,23 @@ class TicketManagement(commands.Cog):
                 ticket_id += 1
         
         return ticket_id
+    
+    def check_user_permission(self, user: discord.User) -> bool:
+        """Checks whether the user has the admin role
+        
+        Args:
+            user: user whose roles are checked
+            
+        Returns:
+            Boolean
+        """
+        
+        user_roles = [role.id for role in user.roles]
+        
+        if self._admin_role in user_roles:
+            return True
+        
+        return False
         
         
 async def setup(bot: commands.Bot) -> None:
