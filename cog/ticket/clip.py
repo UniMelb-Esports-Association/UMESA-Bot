@@ -30,16 +30,8 @@ class ClipTicketManagement(TicketManagement):
     def __init__(self, bot: commands.Bot) -> None:
 
         super().__init__(bot)
-        self._data = TicketData()
         
         self._bot = bot
-        self._category_id = (
-            self._data.module("clip")["category_id"]
-        )
-        self._category = discord.utils.get(
-            self.bot.guilds[0].categories, id=self._category_id
-        )
-        self._admin_role = self._data.module("clip")["role_id"]
         # get all used ticket ids
         self._used_ticket_ids = [
             int(channel.name[-3:])

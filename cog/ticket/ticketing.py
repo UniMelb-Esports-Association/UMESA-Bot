@@ -23,6 +23,15 @@ class TicketManagement(commands.Cog):
         self.bot = bot
         self._guild = bot.guilds[0]
         
+        self._data = TicketData()
+        self._category_id = (
+            self._data.module("clip")["category_id"]
+        )
+        self._category = discord.utils.get(
+            self.bot.guilds[0].categories, id=self._category_id
+        )
+        self._admin_role = self._data.module("clip")["role_id"]
+        
     async def send_embed(
         self,
         channel: discord.channel,
