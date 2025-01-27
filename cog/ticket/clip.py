@@ -21,11 +21,6 @@ class ClipTicketManagement(TicketManagement):
     Args:
         bot: The bot to add this cog to.
     """
-    
-    MAX_TICKETS = 500
-    MAX_TICKET_ID = 999
-    MAX_TICKETS_PER_USER = 3
-    TIME_UNTIL_TICKET_STALE = timedelta(weeks=2)
 
     def __init__(self, bot: commands.Bot) -> None:
 
@@ -145,14 +140,14 @@ class ClipTicketManagement(TicketManagement):
         num_tickets_opened = 0
         member_roles = [role.id for role in interaction.user.roles]
         
-        # ignore maximum tickets for allowed users (specified in init)
+        # ignore maximum tickets for allowed users (specified in ticketing.py)
         if self._admin_role not in member_roles:
             for channel in self._category.channels:
                 if interaction.user in channel.members:
                     num_tickets_opened += 1
 
         # check if user more tickets opened than allowed
-        if num_tickets_opened >= ClipTicketManagement.MAX_TICKETS_PER_USER:
+        if num_tickets_opened >= self._max_tickets_per_user:
             await interaction.response.send_message(
                 "ERROR: Maximum number of tickets opened", ephemeral=True)
             return
@@ -213,7 +208,7 @@ class ClipTicketManagement(TicketManagement):
             return
         
         present = datetime.now(timezone.utc)
-        stale_date = present - self.TIME_UNTIL_TICKET_STALE
+        stale_date = present - self._time_until_ticket_stale
         tickets_deleted = 0
         
         await interaction.response.defer(thinking=True, ephemeral=True)

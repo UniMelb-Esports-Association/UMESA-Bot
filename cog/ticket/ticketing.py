@@ -10,6 +10,12 @@ import discord
 from discord.ext import commands
 
 import json
+from datetime import timedelta
+
+TIME_UNTIL_TICKET_STALE = timedelta(weeks=2)
+MAX_TICKETS_PER_USER = 3
+MAX_TICKETS = 500
+MAX_TICKET_ID = 999
 
 class TicketManagement(commands.Cog):
     """A class to manage ticket creation/deletion
@@ -31,6 +37,8 @@ class TicketManagement(commands.Cog):
             self.bot.guilds[0].categories, id=self._category_id
         )
         self._admin_role = self._data.module("clip")["role_id"]
+        self._max_tickets_per_user = MAX_TICKETS_PER_USER
+        self._time_until_ticket_stale = TIME_UNTIL_TICKET_STALE
         
     async def send_embed(
         self,
