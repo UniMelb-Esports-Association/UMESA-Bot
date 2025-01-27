@@ -39,6 +39,7 @@ class TicketManagement(commands.Cog):
         self._admin_role = self._data.module("clip")["role_id"]
         self._max_tickets_per_user = MAX_TICKETS_PER_USER
         self._time_until_ticket_stale = TIME_UNTIL_TICKET_STALE
+        self._used_ticket_ids = []
         
     async def send_embed(
         self,
@@ -144,6 +145,32 @@ class TicketManagement(commands.Cog):
         embed.colour=colour
         
         return embed
+    
+    def get_next_ticket_id(self):
+        """Retrieves the next valid ticket Id
+        Finds Id based on the following:
+        Get highest ticket number possible, or
+        start from Id=1 and increment until unused id is found
+        
+        Naively assumes that there will always be an available id 
+        (MAX_TICKET_ID > MAX_TICKETS)
+        
+        Returns:
+            Ticket Id
+        """
+        
+        if not self._used_ticket_ids:
+            return 1
+        
+        ticket_id = self._used_ticket_ids[-1]
+        
+        while ticket_id in self._used_ticket_ids:
+            if ticket_id == self._used_ticket_ids:
+                ticket_id = 1
+            else:
+                ticket_id += 1
+        
+        return ticket_id
         
         
 async def setup(bot: commands.Bot) -> None:
