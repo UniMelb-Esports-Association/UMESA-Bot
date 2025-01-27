@@ -14,6 +14,8 @@ from datetime import datetime, timedelta, timezone
 import time
 import re
 
+TICKET_PREFIX = "clip"
+
 class ClipTicketManagement(TicketManagement):
     """A class to manage ticket creation/deletion for clips
 
@@ -26,10 +28,12 @@ class ClipTicketManagement(TicketManagement):
         super().__init__(bot)
         
         self._bot = bot
-        # get all used ticket ids
+        self._ticket_prefix = TICKET_PREFIX
+        # get all currently used ticket ids
         self._used_ticket_ids = [
             int(channel.name[-3:])
-            for channel in self._category.channels]
+            for channel in self._category.channels
+            if self._ticket_prefix in channel.name]
 
          
     def get_next_ticket_id(self):
@@ -154,7 +158,7 @@ class ClipTicketManagement(TicketManagement):
         permission = discord.PermissionOverwrite(view_channel=True)
         ticket_id = self.get_next_ticket_id()
         channel = await self.create_channel(
-            f"ticket-{ticket_id:03d}",
+            f"{self._ticket_prefix}-{ticket_id:03d}",
             self._category_id,
             interaction.user,
             permission
