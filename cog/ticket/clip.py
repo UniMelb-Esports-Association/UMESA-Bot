@@ -169,22 +169,6 @@ class ClipTicketManagement(TicketManagement):
         await self.send_view(channel, HideButton())
         await interaction.edit_original_response(content="Ticket created")
     
-    @commands.Cog.listener()
-    async def on_guild_channel_delete(
-        self,
-        channel: discord.abc.GuildChannel
-    ) -> None:
-        """Update the list of used ticket ids when a channel is deleted
-        
-        Args:
-            channel: The channel that was deleted
-        """
-
-        # Only check for channels in this category
-        if channel.category_id != self._category_id:
-            print("Ticket deleted")
-            return
-    
     @app_commands.command(
         name="ticket_cleanup",
         description="deletes all tickets older than 2 weeks"
