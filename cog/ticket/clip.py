@@ -5,7 +5,6 @@ Inherited functions from ticket.py
 from __future__ import annotations
 
 from .ticketing import TicketManagement
-from .ticket_data import TicketData
 
 import discord
 from discord import app_commands
