@@ -15,6 +15,7 @@ import time
 import re
 
 TICKET_PREFIX = "clip"
+EMBED_PATH = "cog/ticket/clip_questions.json"
 
 class ClipTicketManagement(TicketManagement):
     """A class to manage ticket creation/deletion for clips
@@ -34,6 +35,7 @@ class ClipTicketManagement(TicketManagement):
             int(channel.name[-3:])
             for channel in self._category.channels
             if self._ticket_prefix in channel.name]
+        self._embeds = self.load_embed(EMBED_PATH)
 
     @app_commands.command(name="ticket_booth")
     async def ticket_booth(
@@ -110,10 +112,8 @@ class ClipTicketManagement(TicketManagement):
             await interaction.response.send_message(
                 "ERROR: Maximum number of tickets opened", ephemeral=True)
             return
-        
-        embeds = self.load_embed("cog/ticket/clip_questions.json")
 
-        await super().create_ticket(interaction, embeds)
+        await super().create_ticket(interaction, self._embeds)
         await interaction.edit_original_response(content="Ticket created")
     
     @app_commands.command(
