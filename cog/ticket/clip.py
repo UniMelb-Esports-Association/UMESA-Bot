@@ -102,7 +102,7 @@ class ClipTicketManagement(TicketManagement):
         # ignore maximum tickets for allowed users (specified in ticketing.py)
         if self._admin_role not in member_roles:
             for channel in self._category.channels:
-                if interaction.user in channel.members:
+                if interaction.user in channel.members and self._ticket_prefix in channel.name:
                     num_tickets_opened += 1
 
         # check if user more tickets opened than allowed
@@ -110,23 +110,10 @@ class ClipTicketManagement(TicketManagement):
             await interaction.response.send_message(
                 "ERROR: Maximum number of tickets opened", ephemeral=True)
             return
-
-        permission = discord.PermissionOverwrite(view_channel=True)
-        ticket_id = self.get_next_ticket_id()
-        channel = await self.create_channel(
-            f"{self._ticket_prefix}-{ticket_id:03d}",
-            self._category_id,
-            interaction.user,
-            permission
-        )
-        self._used_ticket_ids.append(ticket_id)
         
         embeds = self.load_embed("cog/ticket/clip_questions.json")
-        
-        for embed in embeds:
-            await self.send_embed(channel, embed)
-        await channel.send(f"{interaction.user.mention}")
-        await self.send_view(channel, HideButton())
+
+        await super().create_ticket(interaction, embeds)
         await interaction.edit_original_response(content="Ticket created")
     
     @app_commands.command(
@@ -194,48 +181,6 @@ class TicketButton(
 
     async def callback(self, interaction):
         await self._ticket_manager.create_ticket(interaction)
-
-        
-class HideButton(discord.ui.View):
-    """View to store hide channel button
-    
-    This view is used to ensure that when the bot restarts, all currently
-    sent buttons will still function
-    """
-    
-    label = "Close ticket"
-    emoji = "⚠️"
-    style = discord.ButtonStyle.danger
-    
-    def __init__(
-        self
-    ) -> None:
-        super().__init__(timeout=None)
-        
-    @discord.ui.button(custom_id="ticket_hider",
-                       label=label,
-                       emoji=emoji,
-                       style=style)
-    async def activate(
-        self,
-        interaction: discord.Interaction,
-        button: discord.Button
-    ) -> None:
-        """Hide the channel from non-moderator users when pressed
-        
-        This function syncs the channel with the category permissions
-        Args:
-        interaction: The interaction object created by button
-        button: Required by Discord interaction but not used here
-        """
-        await interaction.response.send_message("Closing ticket...")
-        await interaction.channel.edit(sync_permissions=True)
-        # Check if the ticket was empty (second last message was from this bot)
-        # Ignores the closing ticket message.
-        last_message = interaction.channel.history(limit=2)
-        user = [message.author async for message in last_message][1]
-        if user == interaction.client.user:
-            await interaction.channel.delete()
         
     
 class TicketBoothParameters(discord.ui.Modal):
@@ -325,7 +270,6 @@ async def setup(bot: commands.Bot) -> None:
         bot: The bot to add this cog to.
     """
     instance = ClipTicketManagement(bot)
-    bot.add_view(HideButton())
     # store instance of ClipTicketManagement to be used in TicketButton
     bot.ticket_manager_instance = instance 
     bot.add_dynamic_items(TicketButton)
