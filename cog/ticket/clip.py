@@ -109,8 +109,8 @@ class ClipTicketManagement(TicketManagement):
 
         # check if user more tickets opened than allowed
         if num_tickets_opened >= self._max_tickets_per_user:
-            await interaction.response.send_message(
-                "ERROR: Maximum number of tickets opened", ephemeral=True)
+            await interaction.edit_original_response(
+                content="ERROR: Maximum number of tickets opened")
             return
 
         await super().create_ticket(interaction, self._embeds)
