@@ -86,36 +86,6 @@ class ClipTicketManagement(TicketManagement):
         await interaction.response.send_message(
             "Ticket booth created", ephemeral=True)
     
-    async def create_ticket(
-        self, 
-        interaction: discord.Interaction,
-        ) -> None:
-        """Creates a new ticket
-
-        Args:
-            interaction: The interaction object for the slash command
-        """
-        
-        await interaction.response.defer(thinking=True, ephemeral=True)
-        
-        num_tickets_opened = 0
-        member_roles = [role.id for role in interaction.user.roles]
-        
-        # ignore maximum tickets for allowed users (specified in ticketing.py)
-        if self._admin_role not in member_roles:
-            for channel in self._category.channels:
-                if interaction.user in channel.members and self._ticket_prefix in channel.name:
-                    num_tickets_opened += 1
-
-        # check if user more tickets opened than allowed
-        if num_tickets_opened >= self._max_tickets_per_user:
-            await interaction.edit_original_response(
-                content="ERROR: Maximum number of tickets opened")
-            return
-
-        await super().create_ticket(interaction, self._embeds)
-        await interaction.edit_original_response(content="Ticket created")
-    
     @app_commands.command(
         name="ticket_cleanup",
         description="deletes all tickets older than 2 weeks"

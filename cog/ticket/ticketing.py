@@ -40,6 +40,7 @@ class TicketManagement(commands.Cog):
         self._max_tickets_per_user = MAX_TICKETS_PER_USER
         self._time_until_ticket_stale = TIME_UNTIL_TICKET_STALE
         self._used_ticket_ids = []
+        self._embeds = None
         
     async def send_embed(
         self,
@@ -191,15 +192,30 @@ class TicketManagement(commands.Cog):
     
     async def create_ticket(
         self, 
-        interaction: discord.Interaction,
-        embeds: list[discord.Embed] = None
+        interaction: discord.Interaction
         ) -> None:
         """Creates a new ticket
 
         Args:
             interaction: The interaction object for the slash command
-            embeds: Embeds to send to the new channel
         """
+        
+        await interaction.response.defer(thinking=True, ephemeral=True)
+        
+        num_tickets_opened = 0
+        member_roles = [role.id for role in interaction.user.roles]
+        
+        # ignore maximum tickets for allowed users (specified in ticketing.py)
+        if self._admin_role not in member_roles:
+            for channel in self._category.channels:
+                if interaction.user in channel.members and self._ticket_prefix in channel.name:
+                    num_tickets_opened += 1
+
+        # check if user more tickets opened than allowed
+        if num_tickets_opened >= self._max_tickets_per_user:
+            await interaction.edit_original_response(
+                content="ERROR: Maximum number of tickets opened")
+            return
         
         permission = discord.PermissionOverwrite(view_channel=True)
         ticket_id = self.get_next_ticket_id()
@@ -211,10 +227,11 @@ class TicketManagement(commands.Cog):
         )
         self._used_ticket_ids.append(ticket_id)
         
-        for embed in embeds:
+        for embed in self._embeds:
             await self.send_embed(channel, embed)
         await channel.send(f"{interaction.user.mention}")
         await self.send_view(channel, HideButton())
+        await interaction.edit_original_response(content="Ticket created")
 
 
 class HideButton(discord.ui.View):
