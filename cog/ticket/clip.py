@@ -74,8 +74,6 @@ async def setup(bot: commands.Bot) -> None:
         bot: The bot to add this cog to.
     """
     instance = ClipTicketManagement(bot)
-    # store instance of ClipTicketManagement to be used in TicketButton
-
     bot.instances[TICKET_PREFIX] = instance
     bot.add_dynamic_items(TicketButton)
     await bot.add_cog(instance)
