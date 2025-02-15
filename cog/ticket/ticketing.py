@@ -5,10 +5,13 @@ specific functionality, another Cog should be created and inherit this class.
 """
 
 from .ticket_data import TicketData
+from .interactables import HideButton
 
 import discord
 from discord.ext import commands
 
+import re
+import time
 import json
 from datetime import timedelta
 
@@ -30,13 +33,13 @@ class TicketManagement(commands.Cog):
         self._guild = bot.guilds[0]
         
         self._data = TicketData()
+        self._admin_role = self._data.module("admin_role")
         self._category_id = (
             self._data.module("clip")["category_id"]
         )
         self._category = discord.utils.get(
             self.bot.guilds[0].categories, id=self._category_id
         )
-        self._admin_role = self._data.module("clip")["role_id"]
         self._max_tickets_per_user = MAX_TICKETS_PER_USER
         self._time_until_ticket_stale = TIME_UNTIL_TICKET_STALE
         self._used_ticket_ids = []
@@ -173,23 +176,6 @@ class TicketManagement(commands.Cog):
         
         return ticket_id
     
-    def check_user_permission(self, user: discord.User) -> bool:
-        """Checks whether the user has the admin role
-        
-        Args:
-            user: user whose roles are checked
-            
-        Returns:
-            Boolean
-        """
-        
-        user_roles = [role.id for role in user.roles]
-        
-        if self._admin_role in user_roles:
-            return True
-        
-        return False
-    
     async def create_ticket(
         self, 
         interaction: discord.Interaction
@@ -232,62 +218,20 @@ class TicketManagement(commands.Cog):
         await channel.send(f"{interaction.user.mention}")
         await self.send_view(channel, HideButton())
         await interaction.edit_original_response(content="Ticket created")
-
-
-class HideButton(discord.ui.View):
-    """View to store hide channel button
     
-    This view is used to ensure that when the bot restarts, all currently
-    sent buttons will still function
-    """
-    
-    label = "Close ticket"
-    emoji = "⚠️"
-    style = discord.ButtonStyle.danger
-    
-    def __init__(
-        self
-    ) -> None:
-        super().__init__(timeout=None)
+    def check_user_permission(self, user: discord.User) -> bool:
+        """Checks whether the user has the admin role
         
-    @discord.ui.button(custom_id="ticket_hider",
-                       label=label,
-                       emoji=emoji,
-                       style=style)
-    async def activate(
-        self,
-        interaction: discord.Interaction,
-        button: discord.Button
-    ) -> None:
-        """Hide the channel from non-moderator users when pressed
-        
-        This function syncs the channel with the category permissions
         Args:
-        interaction: The interaction object created by button
-        button: Required by Discord interaction but not used here
+            user: user whose roles are checked
+            
+        Returns:
+            Boolean
         """
-        await interaction.response.send_message("Closing ticket...")
-        await interaction.channel.edit(sync_permissions=True)
-        # Check if the ticket was empty (second last message was from this bot)
-        # Ignores the closing ticket message.
-        last_message = interaction.channel.history(limit=2)
-        user = [message.author async for message in last_message][1]
-        if user == interaction.client.user:
-            await interaction.channel.delete()
-             
         
-async def setup(bot: commands.Bot) -> None:
-    """A hook for the bot to register the TicketManagement cog
-    and its children.
-
-    Args:
-        bot: The bot to add this cog to.
-    """
-    
-    module_names = TicketData().module_names()
-    bot.add_view(HideButton())
-    
-    for module in module_names:
-        await bot.load_extension(f'cog.ticket.{module}')
-
-    await bot.add_cog(TicketManagement(bot))
+        user_roles = [role.id for role in user.roles]
+        
+        if self._admin_role in user_roles:
+            return True
+        
+        return False
