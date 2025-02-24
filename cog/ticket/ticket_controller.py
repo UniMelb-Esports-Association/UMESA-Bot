@@ -75,41 +75,7 @@ class TicketController(TicketManagement):
                 "Insufficient permissions", ephemeral=True
             )
             return
-        
         await interaction.response.send_modal(TicketBoothParameters(self))
-    
-    async def clean_tickets(self, interaction) -> None:
-        """Delete all tickets with the last message sent before the stale time.
-        Note this method uses channel.history not channel.last_message as
-        channel.last_message may point to a deleted message which throws an 
-        error
-        
-        Args:
-            interaction: The interaction object for the slash command
-        """
-        
-        # check user permissions
-        if not self.check_user_permission(interaction.user):
-            await interaction.response.send_message(
-                "Insufficient permissions", ephemeral=True
-            )
-            return
-        
-        present = datetime.now(timezone.utc)
-        stale_date = present - self._time_until_ticket_stale
-        tickets_deleted = 0
-        
-        await interaction.response.defer(thinking=True, ephemeral=True)
-        
-        for channel in self._category.channels:
-            last_message = channel.history(limit=1)
-            date = [message.created_at async for message in last_message][0]
-            if (date < stale_date):
-                await channel.delete()
-                tickets_deleted += 1
-            
-        await interaction.followup.send(
-            f"{tickets_deleted} ticket(s) deleted")
         
     async def create_ticket_booth(
         self,
@@ -132,9 +98,9 @@ class TicketController(TicketManagement):
         await self.send_embed(interaction.channel, embed)
         view = discord.ui.View(timeout=None)
         for instance in self.bot.instances.values():
-            view.add_item(instance.get_ticket_button(button_label, button_emoji))
-        
-        #view.add_item(TicketButton(self, button_label, button_emoji))
+            button = instance.get_ticket_button(button_label, button_emoji)
+            view.add_item(button)
+            
         try:
            await self.send_view(interaction.channel, view)
         except:
