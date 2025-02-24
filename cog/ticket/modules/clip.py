@@ -1,6 +1,6 @@
 """Handles creating tickets for clip submission
 """
-from .ticket_module import TicketModule
+from ..ticket_module import TicketModule
 from discord.ext import commands
 
 TICKET_PREFIX = "clip"
