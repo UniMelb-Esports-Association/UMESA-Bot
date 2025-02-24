@@ -229,7 +229,7 @@ class TicketManagement(commands.Cog):
             user: user whose roles are checked
             
         Returns:
-            Boolean
+            Boolean value of whether user has permission
         """
         
         user_roles = [role.id for role in user.roles]
