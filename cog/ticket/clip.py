@@ -1,78 +1,23 @@
 """Handles creating tickets for clip submission
 """
-from __future__ import annotations
-
-from .ticketing import TicketManagement
-
-import discord
+from .ticket_module import TicketModule
 from discord.ext import commands
-
-import time
-import re
 
 TICKET_PREFIX = "clip"
 EMBED_PATH = "cog/ticket/clip_questions.json"
 
-class ClipTicketManagement(TicketManagement):
-    """A class to manage ticket creation/deletion for clips
-
-    Args:
-        bot: The bot to add this cog to.
-    """
-
+class Ticket(TicketModule):
     def __init__(self, bot: commands.Bot) -> None:
-
-        super().__init__(bot)
+        super().__init__(bot, TICKET_PREFIX, EMBED_PATH)
         
-        self._bot = bot
-        self._ticket_prefix = TICKET_PREFIX
-        # get all currently used ticket ids
-        self._used_ticket_ids = [
-            int(channel.name[-3:])
-            for channel in self._category.channels
-            if self._ticket_prefix in channel.name]
-        self._embeds = self.load_embed(EMBED_PATH)
-        bot.add_dynamic_items(self.TicketButton)
-    
-    def get_ticket_button(self, label, emoji) -> discord.Button:
-        return self.TicketButton(self, label, emoji)
-
-    class TicketButton(
-        discord.ui.DynamicItem[discord.ui.Button],
-        template=r'(?P<prefix>[a-z]+):[0-9]+'):
-            """Dynamic, persistent button to handle ticket creation"""
-            
-            def __init__(self, ticket_manager, label=None, emoji=None):
-                self._ticket_manager = ticket_manager
-                super().__init__(
-                    discord.ui.Button(
-                        label=label,
-                        emoji=emoji,
-                        style=discord.ButtonStyle.blurple,
-                        custom_id=f"{TICKET_PREFIX}:{int(time.time())}"
-                    )
-                )
-
-            @classmethod
-            async def from_custom_id(cls,
-                                    interaction: discord.Interaction,
-                                    item: discord.ui.Button, 
-                                    match: re.Match[str]):
-                prefix = match["prefix"]
-                ticket_manager = interaction.client.instances[prefix]
-                return cls(ticket_manager)
-
-            async def callback(self, interaction):
-                await self._ticket_manager.create_ticket(interaction)
-
 async def setup(bot: commands.Bot) -> None:
-    """A hook for the bot to register the ClipTicketManagement cog.
-    This setup hook also handles intialising the View to ensure
-    that any created buttons will still work after the bot restarts
+    """A hook for the bot to register the ticket cog.
+    Also stores an instance of itself within the Discord bot instance for
+    future reference
 
     Args:
         bot: The bot to add this cog to.
     """
-    instance = ClipTicketManagement(bot)
+    instance = Ticket(bot)
     bot.instances[TICKET_PREFIX] = instance
     await bot.add_cog(instance)
