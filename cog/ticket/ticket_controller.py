@@ -201,4 +201,4 @@ async def setup(bot: commands.Bot):
     
     for module in module_names:
         if not module == "admin_role":
-            await bot.load_extension(f'cog.ticket.{module}')
+            await bot.load_extension(f'cog.ticket.modules.{module}')
