@@ -71,6 +71,9 @@ class TicketManagement(commands.Cog):
         Returns:
             List of embeds
         """
+        
+        if not filepath:
+            return []
     
         with open(filepath, "r") as file:
             data = json.load(file)
