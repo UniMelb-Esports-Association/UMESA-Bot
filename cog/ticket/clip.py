@@ -1,6 +1,4 @@
 """Handles creating tickets for clip submission
-
-Inherited functions from ticket.py
 """
 from __future__ import annotations
 
@@ -34,36 +32,38 @@ class ClipTicketManagement(TicketManagement):
             for channel in self._category.channels
             if self._ticket_prefix in channel.name]
         self._embeds = self.load_embed(EMBED_PATH)
+        bot.add_dynamic_items(self.TicketButton)
     
-    def get_ticket_button(self, label, emoji):
-        return TicketButton(self, label, emoji)
+    def get_ticket_button(self, label, emoji) -> discord.Button:
+        return self.TicketButton(self, label, emoji)
 
-class TicketButton(
-    discord.ui.DynamicItem[discord.ui.Button],
-    template=r'make_ticket:([0-9]+)'):
-        """Dynamic, persistent button to handle ticket creation"""
-        
-        def __init__(self, ticket_manager, label=None, emoji=None):
-            self._ticket_manager = ticket_manager
-            super().__init__(
-                discord.ui.Button(
-                    label=label,
-                    emoji=emoji,
-                    style=discord.ButtonStyle.blurple,
-                    custom_id=f"make_ticket:{int(time.time())}"
+    class TicketButton(
+        discord.ui.DynamicItem[discord.ui.Button],
+        template=r'(?P<prefix>[a-z]+):[0-9]+'):
+            """Dynamic, persistent button to handle ticket creation"""
+            
+            def __init__(self, ticket_manager, label=None, emoji=None):
+                self._ticket_manager = ticket_manager
+                super().__init__(
+                    discord.ui.Button(
+                        label=label,
+                        emoji=emoji,
+                        style=discord.ButtonStyle.blurple,
+                        custom_id=f"{TICKET_PREFIX}:{int(time.time())}"
+                    )
                 )
-            )
 
-        @classmethod
-        async def from_custom_id(cls,
-                                interaction: discord.Interaction,
-                                item: discord.ui.Button, 
-                                match: re.Match[str]):
-            ticket_manager = interaction.client.instances[TICKET_PREFIX]
-            return cls(ticket_manager)
+            @classmethod
+            async def from_custom_id(cls,
+                                    interaction: discord.Interaction,
+                                    item: discord.ui.Button, 
+                                    match: re.Match[str]):
+                prefix = match["prefix"]
+                ticket_manager = interaction.client.instances[prefix]
+                return cls(ticket_manager)
 
-        async def callback(self, interaction):
-            await self._ticket_manager.create_ticket(interaction)
+            async def callback(self, interaction):
+                await self._ticket_manager.create_ticket(interaction)
 
 async def setup(bot: commands.Bot) -> None:
     """A hook for the bot to register the ClipTicketManagement cog.
@@ -75,5 +75,4 @@ async def setup(bot: commands.Bot) -> None:
     """
     instance = ClipTicketManagement(bot)
     bot.instances[TICKET_PREFIX] = instance
-    bot.add_dynamic_items(TicketButton)
     await bot.add_cog(instance)
