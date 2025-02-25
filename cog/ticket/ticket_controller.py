@@ -109,8 +109,7 @@ class TicketController(TicketManagement):
         embed_title: str,
         embed_text: str,
         embed_colour: int|None,
-        button_label: str,
-        button_emoji: str
+        button_label: str
     ) -> None:
         """Generate and send embed/button in Discord
         
@@ -124,7 +123,7 @@ class TicketController(TicketManagement):
         await self.send_embed(interaction.channel, embed)
         view = discord.ui.View(timeout=None)
         for instance in self.bot.instances.values():
-            button = instance.get_ticket_button(button_label, button_emoji)
+            button = instance.get_ticket_button(button_label)
             view.add_item(button)
             
         try:
@@ -154,7 +153,6 @@ class TicketBoothParameters(discord.ui.Modal):
         self._embed_text = embed_text
         self._embed_colour = embed_colour
         
-    # Questions in form
     title = "Configure ticket booth"
     button_title=discord.ui.TextInput(
         style=discord.TextStyle.short,
@@ -162,28 +160,15 @@ class TicketBoothParameters(discord.ui.Modal):
         label="Button Title", 
         placeholder="Text on button"
     )
-    button_emoji=discord.ui.TextInput(
-        style=discord.TextStyle.short,
-        required=False,
-        default=None,
-        label="Button Emoji", 
-        placeholder="Emoji on button"
-    )
     
     async def on_submit(self, interaction: discord.Interaction):
-        
-
-        emoji = self.button_emoji.value
-        if not emoji:
-            emoji = None
         
         await self._ticket_manager.create_ticket_booth(
                 interaction,
                 self._embed_title,
                 self._embed_text,
                 self._embed_colour,
-                self.button_title.value,
-                emoji
+                self.button_title.value
             )
 
 async def setup(bot: commands.Bot):
