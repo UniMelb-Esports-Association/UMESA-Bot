@@ -78,6 +78,27 @@ class TicketController(TicketManagement):
                 "Insufficient permissions", ephemeral=True
             )
             return
+        
+          # handle colour code
+        embed_colour = embed_colour
+        embed_colour = embed_colour.lstrip("#")
+        embed_colour = embed_colour.lstrip("0x")
+        
+        if not embed_colour:
+            embed_colour = None
+        else:
+            if len(embed_colour) != 6:
+                await interaction.response.send_message(
+                    "Hexcode must have 6 characters", ephemeral=True)
+                return
+            else:     
+                try:
+                    embed_colour = int(embed_colour, 16)
+                except:
+                    await interaction.response.send_message(
+                        "Hexcode not valid", ephemeral=True)
+                    return
+
         await interaction.response.send_modal(
             TicketBoothParameters(self, embed_title, embed_text, embed_colour)
             )
@@ -87,9 +108,9 @@ class TicketController(TicketManagement):
         interaction: discord.Interaction,
         embed_title: str,
         embed_text: str,
+        embed_colour: int|None,
         button_label: str,
-        button_emoji: str,
-        embed_colour: int|None
+        button_emoji: str
     ) -> None:
         """Generate and send embed/button in Discord
         
@@ -155,33 +176,14 @@ class TicketBoothParameters(discord.ui.Modal):
         emoji = self.button_emoji.value
         if not emoji:
             emoji = None
-            
-        # handle colour code
-        colour = self._embed_colour
-        colour = colour.lstrip("#")
-        colour = colour.lstrip("0x")
-        
-        if not colour:
-            colour = None
-        else:
-            if len(colour) != 6:
-                await interaction.response.send_message(
-                    "Hexcode must have 6 characters", ephemeral=True)
-            else:     
-                try:
-                    colour = int(colour, 16)
-                except:
-                    await interaction.response.send_message(
-                        "Hexcode not valid", ephemeral=True)
-                    return
         
         await self._ticket_manager.create_ticket_booth(
                 interaction,
                 self._embed_title,
                 self._embed_text,
+                self._embed_colour,
                 self.button_title.value,
-                emoji,
-                colour,
+                emoji
             )
 
 async def setup(bot: commands.Bot):
