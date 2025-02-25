@@ -32,7 +32,7 @@ class TicketModule(TicketManagement):
             if self._ticket_prefix in channel.name]
         bot.add_dynamic_items(self.TicketButton)
     
-    def get_ticket_button(self, label, emoji) -> discord.Button:
+    def get_ticket_button(self, label=None, emoji=None) -> discord.Button:
         return self.TicketButton(self, label, emoji)
 
     class TicketButton(
