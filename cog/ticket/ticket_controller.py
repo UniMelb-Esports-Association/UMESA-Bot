@@ -147,13 +147,13 @@ class TicketBoothParameters(discord.ui.Modal):
         embed_colour: str=None
     ) -> None:
 
-        super().__init__()
+        super().__init__(title="Configure ticket booth")
         self._ticket_manager = ticket_manager
         self._embed_title = embed_title
         self._embed_text = embed_text
         self._embed_colour = embed_colour
         
-    title = "Configure ticket booth"
+    
     button_title=discord.ui.TextInput(
         style=discord.TextStyle.short,
         required=True,
