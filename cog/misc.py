@@ -153,7 +153,7 @@ class Misc(commands.Cog):
                     continue
 
                 # 5 is the index of the questions column.
-                if row[5] == 'Discord ID' or row[5] == 'Discord username':
+                if row[5] == 'Discord ID' or row[5] == 'Discord Username':
                     # 6 is the index of the answers column.
                     # Here we also remove the tag if it exists
                     # because the query_members method doesn't like it.
