@@ -10,6 +10,8 @@ from discord import app_commands
 
 from datetime import datetime, timedelta, timezone
 
+TICKET_TYPE_NUM = 4
+
 class TicketController(TicketManagement):
     
     """Class to handle bot commands related to ticketing
@@ -109,7 +111,7 @@ class TicketController(TicketManagement):
         embed_title: str,
         embed_text: str,
         embed_colour: int|None,
-        button_label: str
+        button_labels: list[str]
     ) -> None:
         """Generate and send embed/button in Discord
         
@@ -122,8 +124,11 @@ class TicketController(TicketManagement):
         embed = self.create_embed(embed_title, embed_text, embed_colour)
         await self.send_embed(interaction.channel, embed)
         view = discord.ui.View(timeout=None)
-        for instance in self.bot.instances.values():
-            button = instance.get_ticket_button(button_label)
+        
+        # loop through instances and button labels
+        
+        for instance, label in zip(self.bot.instances.values(), button_labels):
+            button = instance.get_ticket_button(label)
             view.add_item(button)
             
         try:
@@ -153,22 +158,27 @@ class TicketBoothParameters(discord.ui.Modal):
         self._embed_text = embed_text
         self._embed_colour = embed_colour
         
-    
-    button_title=discord.ui.TextInput(
-        style=discord.TextStyle.short,
-        required=True,
-        label="Button Title", 
-        placeholder="Text on button"
-    )
+        # Create a new field for each TICKET_TYPE_NUM
+        # NOTE: Discord Modals only have a maximum of 5 fields
+        for i in range(TICKET_TYPE_NUM):
+            button_title = discord.ui.TextInput(
+            style=discord.TextStyle.short,
+            required=True,
+            label=f"Button Title {i+1}", 
+            placeholder="Text on button"
+            )
+            self.add_item(button_title)
     
     async def on_submit(self, interaction: discord.Interaction):
+        
+        button_labels = [item.value for item in self.children]
         
         await self._ticket_manager.create_ticket_booth(
                 interaction,
                 self._embed_title,
                 self._embed_text,
                 self._embed_colour,
-                self.button_title.value
+                button_labels
             )
 
 async def setup(bot: commands.Bot):
