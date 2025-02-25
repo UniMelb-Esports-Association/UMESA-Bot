@@ -63,6 +63,9 @@ class TicketController(TicketManagement):
     async def ticket_booth(
         self,
         interaction: discord.Interaction,
+        embed_title: str,
+        embed_text: str,
+        embed_colour: str=""
     ) -> None:
         """Sends an embed based on given parameter
 
@@ -75,7 +78,9 @@ class TicketController(TicketManagement):
                 "Insufficient permissions", ephemeral=True
             )
             return
-        await interaction.response.send_modal(TicketBoothParameters(self))
+        await interaction.response.send_modal(
+            TicketBoothParameters(self, embed_title, embed_text, embed_colour)
+            )
         
     async def create_ticket_booth(
         self,
@@ -84,7 +89,7 @@ class TicketController(TicketManagement):
         embed_text: str,
         button_label: str,
         button_emoji: str,
-        embed_colour: int=None
+        embed_colour: int|None
     ) -> None:
         """Generate and send embed/button in Discord
         
@@ -116,24 +121,20 @@ class TicketBoothParameters(discord.ui.Modal):
     
     def __init__(
         self, 
-        ticket_manager: TicketController
+        ticket_manager: TicketController,
+        embed_title: str,
+        embed_text: str,
+        embed_colour: str=None
     ) -> None:
 
         super().__init__()
         self._ticket_manager = ticket_manager
+        self._embed_title = embed_title
+        self._embed_text = embed_text
+        self._embed_colour = embed_colour
         
     # Questions in form
     title = "Configure ticket booth"
-    embed_title = discord.ui.TextInput(
-        style=discord.TextStyle.short,
-        label="Title", 
-        placeholder="Name of the ticket"
-    )
-    embed_text = discord.ui.TextInput(
-        style=discord.TextStyle.long,
-        label="Description", 
-        placeholder="What is this ticket for?"
-    )
     button_title=discord.ui.TextInput(
         style=discord.TextStyle.short,
         required=True,
@@ -147,13 +148,7 @@ class TicketBoothParameters(discord.ui.Modal):
         label="Button Emoji", 
         placeholder="Emoji on button"
     )
-    embed_colour = discord.ui.TextInput(
-        style=discord.TextStyle.short,
-        required=False,
-        default=None,
-        label="Colour",
-        placeholder="Hex colour code (starts with # or 0x)"
-    )
+    
     async def on_submit(self, interaction: discord.Interaction):
         
 
@@ -162,7 +157,7 @@ class TicketBoothParameters(discord.ui.Modal):
             emoji = None
             
         # handle colour code
-        colour = self.embed_colour.value
+        colour = self._embed_colour
         colour = colour.lstrip("#")
         colour = colour.lstrip("0x")
         
@@ -182,8 +177,8 @@ class TicketBoothParameters(discord.ui.Modal):
         
         await self._ticket_manager.create_ticket_booth(
                 interaction,
-                self.embed_title.value,
-                self.embed_text.value,
+                self._embed_title,
+                self._embed_text,
                 self.button_title.value,
                 emoji,
                 colour,
