@@ -158,13 +158,16 @@ class TicketBoothParameters(discord.ui.Modal):
         self._embed_text = embed_text
         self._embed_colour = embed_colour
         
+        ticket_types = list(self._ticket_manager.bot.instances.keys())
+        print(ticket_types)
+        
         # Create a new field for each TICKET_TYPE_NUM
         # NOTE: Discord Modals only have a maximum of 5 fields
         for i in range(TICKET_TYPE_NUM):
             button_title = discord.ui.TextInput(
             style=discord.TextStyle.short,
             required=True,
-            label=f"Button Title {i+1}", 
+            label=f"Button Title: {ticket_types[i]}", 
             placeholder="Text on button"
             )
             self.add_item(button_title)
