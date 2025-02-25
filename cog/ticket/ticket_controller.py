@@ -159,7 +159,6 @@ class TicketBoothParameters(discord.ui.Modal):
         self._embed_colour = embed_colour
         
         ticket_types = list(self._ticket_manager.bot.instances.keys())
-        print(ticket_types)
         
         # Create a new field for each TICKET_TYPE_NUM
         # NOTE: Discord Modals only have a maximum of 5 fields
