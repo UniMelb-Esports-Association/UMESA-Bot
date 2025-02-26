@@ -11,7 +11,7 @@ from discord.ext import commands
 _COGS = ('channel.management',
          'channel.assignment',
          'misc',
-         'ticket.ticketing')
+         'ticket.ticket_controller')
 
 
 class Bot(commands.Cog):
