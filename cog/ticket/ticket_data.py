@@ -31,7 +31,7 @@ class TicketData(metaclass=Singleton):
 
     def __init__(self) -> None:
         # Load the data file as a dictionary.
-        with open(BASE_PATH + MODULE_FILE, 'r') as file:
+        with open(BASE_PATH + MODULE_FILE, 'r', encoding='utf-8') as file:
             self._modules = json.load(file)
             
     def module_names(self) -> list[str]:
