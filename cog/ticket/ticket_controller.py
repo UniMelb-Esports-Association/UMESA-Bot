@@ -88,11 +88,6 @@ class TicketController(TicketManagement):
             )
             return
         
-          # handle colour code
-        embed_colour = embed_colour
-        embed_colour = embed_colour.lstrip("#")
-        embed_colour = embed_colour.lstrip("0x")
-        
         if not embed_colour:
             embed_colour = None
         else:
