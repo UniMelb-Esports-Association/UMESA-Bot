@@ -14,7 +14,7 @@ class HideButton(discord.ui.View):
     sent buttons will still function
     """
     
-    label = "Close ticket"
+    label = "Close submission"
     emoji = "⚠️"
     style = discord.ButtonStyle.danger
     
