@@ -28,7 +28,10 @@ class TicketController(TicketManagement):
         name="ticket_cleanup",
         description="deletes all tickets older than 2 weeks"
         )
-    async def clean_tickets(self, interaction) -> None:
+    async def clean_tickets(
+        self, 
+        interaction: discord.Interaction
+        ) -> None:
         """Delete all tickets with the last message sent before the stale time.
         Note this method uses channel.history not channel.last_message as
         channel.last_message may point to a deleted message which throws an 
@@ -53,8 +56,12 @@ class TicketController(TicketManagement):
         
         for channel in self._category.channels:
             last_message = channel.history(limit=1)
-            date = [message.created_at async for message in last_message][0]
-            if (date < stale_date):
+            message = [message async for message in last_message][0]
+            date = message.created_at
+            
+            # delete messages older than stale_date or empty tickets
+            # last message was the hide button sent by the bot
+            if date < stale_date or message.components:
                 await channel.delete()
                 tickets_deleted += 1
             
