@@ -31,6 +31,12 @@ class TicketModule(TicketManagement):
             for channel in self._category.channels
             if self._ticket_prefix in channel.name]
         bot.add_dynamic_items(self.TicketButton)
+        self._category_id = (
+            self._data.module(ticket_prefix)["category_id"]
+        )
+        self._category = discord.utils.get(
+            self.bot.guilds[0].categories, id=self._category_id
+        )
     
     def get_ticket_button(self, label=None, emoji=None) -> discord.Button:
         return self.TicketButton(self, label, emoji)
