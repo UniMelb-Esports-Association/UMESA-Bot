@@ -4,11 +4,10 @@ from ..ticket_module import TicketModule
 from discord.ext import commands
 
 TICKET_PREFIX = "clip"
-EMBED_PATH = "cog/ticket/clip_questions.json"
 
 class ClipTicket(TicketModule):
     def __init__(self, bot: commands.Bot) -> None:
-        super().__init__(bot, TICKET_PREFIX, EMBED_PATH)
+        super().__init__(bot, TICKET_PREFIX)
         
 async def setup(bot: commands.Bot) -> None:
     """A hook for the bot to register the ticket cog.

@@ -17,7 +17,6 @@ class TicketModule(TicketManagement):
     def __init__(self, 
                  bot: commands.Bot,
                  ticket_prefix: str,
-                 embed_path: str,
                  ) -> None:
 
         super().__init__(bot)
