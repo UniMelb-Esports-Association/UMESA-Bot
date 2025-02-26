@@ -59,29 +59,23 @@ class TicketManagement(commands.Cog):
         
     def load_embed(
         self,
-        filepath: str,
+        embed_data: str,
     ) -> None:
         """Loads embed(s) from file
         
         Args:
-            filepath: filepath to json where embed data is stored
+            embed_data: embeds stored in file
             
         Returns:
             List of embeds
         """
-        
-        if not filepath:
+        if not embed_data:
             return []
-    
-        with open(filepath, "r") as file:
-            data = json.load(file)
-            
-        embeds = []
         
+        embeds = []
 
-        for embed in data["embeds"]:
-            test = discord.Embed.from_dict(embed)
-            embeds.append(test)
+        for embed in embed_data["embeds"]:
+            embeds.append(discord.Embed.from_dict(embed)) 
         
         return embeds
     

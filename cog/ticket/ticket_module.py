@@ -24,7 +24,8 @@ class TicketModule(TicketManagement):
         
         self._bot = bot
         self._ticket_prefix = ticket_prefix
-        self._embeds = self.load_embed(embed_path)
+        embed_data = self._data.module(self._ticket_prefix)["embeds"]
+        self._embeds = self.load_embed(embed_data)
         # get all currently used ticket ids
         self._used_ticket_ids = [
             int(channel.name[-3:])
