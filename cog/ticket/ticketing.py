@@ -10,8 +10,6 @@ from .interactables import HideButton
 import discord
 from discord.ext import commands
 
-import re
-import time
 import json
 from datetime import timedelta
 
