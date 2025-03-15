@@ -65,7 +65,7 @@ As mentioned earlier, there are two files that the bot requires to function prop
 - `cog/ticket/ticket_data.json`
 
 1. amend `admin_role`
-2. amend `category_id for clip, report, shop, general`
+2. amend `category_id` for clip, report, shop, general
 
 ## Contributing
 The code uses the [discord.py](https://discordpy.readthedocs.io/en/stable/) library for interacting with the Discord backend in Python. You can find the API docs [here](https://discordpy.readthedocs.io/en/stable/api.html). The code also follows strict standards for structure, formatting and documentation. You must adhere to these standards for a pull request to be accepted.
