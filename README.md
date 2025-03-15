@@ -24,17 +24,17 @@ cd UMESA-Bot
 
 4. Create a Python virtual environment called "venv".
 ```bash
-python3 -m venv venv
+python3 -m venv .venv
 ```
 
 5. Activate the virtual environment. (Note: Every time you run the bot you'll need to make sure you're inside the virtual environment by running this command. You can confirm it was successful by noticing your terminal prefix has changed to "venv")
 ```bash
-source venv/bin/activate
+.venv\Scripts\activate
 ```
 
 6. Install dependencies into the virtual environment.
 ```bash
-pip3 install discord.py python-dotenv
+pip3 install discord.py python-dotenv requests
 ```
 
 7. Create a .env file that contains the bot's token and a data.json file that contains the data required for the bot to work. See below for the format of these files.
@@ -61,6 +61,11 @@ As mentioned earlier, there are two files that the bot requires to function prop
     "entity": {}
 }
 ```
+
+- `cog/ticket/ticket_data.json`
+
+1. amend `admin_role`
+2. amend `category_id for clip, report, shop, general`
 
 ## Contributing
 The code uses the [discord.py](https://discordpy.readthedocs.io/en/stable/) library for interacting with the Discord backend in Python. You can find the API docs [here](https://discordpy.readthedocs.io/en/stable/api.html). The code also follows strict standards for structure, formatting and documentation. You must adhere to these standards for a pull request to be accepted.
